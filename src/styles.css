@@ -115,6 +115,13 @@ button {
   letter-spacing: 0.04em;
 }
 
+.hero-title-note {
+  padding-bottom: 0.4rem;
+  font-size: clamp(1.15rem, 3.5vw, 1.6rem);
+  font-weight: 700;
+  color: rgba(32, 22, 19, 0.72);
+}
+
 .eyebrow {
   margin: 0 0 10px;
   font-size: 0.78rem;

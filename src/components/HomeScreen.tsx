@@ -199,6 +199,7 @@ export function HomeScreen({
                 bǎi3
               </span>
             </span>
+            <span className="hero-title-note">(99.9%)</span>
           </h1>
           <p className="hero-copy">
             Prácticas de Chino para alumnos de niveles iniciales
