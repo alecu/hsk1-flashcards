@@ -24,7 +24,7 @@ export function TonePinyinCard({
                 className="pinyin"
                 data-tone={colorTones ? syllable.tone : 0}
               >
-                {syllable.pinyin}
+                {syllable.pinyinDisplay}
               </span>
             ) : (
               <span className="pinyin pinyin-hidden">pinyin oculto</span>

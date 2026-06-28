@@ -1,7 +1,11 @@
 import hsk20WordsLevel1 from "@leonsilicon/hsk2.0/HSK2.0_words_level1.json";
 
 import { hsk1Glossary } from "./hsk1Glossary";
-import { getPinyinSyllables, getToneFromPinyin } from "../lib/pinyin";
+import {
+  formatPinyinWithToneMark,
+  getPinyinSyllables,
+  getToneFromPinyin,
+} from "../lib/pinyin";
 import { normalizeWord } from "../lib/text";
 import type { Card } from "../types/cards";
 
@@ -33,7 +37,8 @@ export const hsk1Cards: Card[] = normalizedWords.map((word) => {
 
       return {
         hanzi,
-        pinyin,
+        pinyinNumber: pinyin,
+        pinyinDisplay: formatPinyinWithToneMark(pinyin),
         tone: getToneFromPinyin(pinyin),
       };
     }),

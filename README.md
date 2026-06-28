@@ -50,9 +50,26 @@ npm run dev
 npm run build
 ```
 
-## Deploy
+## Tests
 
-El repositorio incluye [`.github/workflows/deploy.yml`](/Users/alecu/Documents/Codex/2026-06-28-hola-quiero-que-hagamos-un-plan/.github/workflows/deploy.yml:1) para publicar el sitio en GitHub Pages en cada push a `main`.
+```bash
+npm test
+```
+
+La suite actual cubre:
+
+- helpers de pinyin y formateo con acentos
+- integridad del dataset HSK1
+- regresion del bug de `猫` para evitar el prefijo fantasma `ma1`
+- motor de sesiones
+- render base de la tarjeta con pinyin acentuado
+
+## CI y Deploy
+
+El repositorio incluye:
+
+- [`.github/workflows/ci.yml`](/Users/alecu/Documents/Codex/2026-06-28-hola-quiero-que-hagamos-un-plan/.github/workflows/ci.yml:1) para correr tests y build en cada push y pull request.
+- [`.github/workflows/deploy.yml`](/Users/alecu/Documents/Codex/2026-06-28-hola-quiero-que-hagamos-un-plan/.github/workflows/deploy.yml:1) para ejecutar tests, build y deploy a GitHub Pages en cada push a `main`.
 
 ## Proximo paso recomendado
 

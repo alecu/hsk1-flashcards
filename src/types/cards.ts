@@ -2,7 +2,8 @@ export type Tone = 0 | 1 | 2 | 3 | 4;
 
 export type CardSyllable = {
   hanzi: string;
-  pinyin: string;
+  pinyinNumber: string;
+  pinyinDisplay: string;
   tone: Tone;
 };
 
