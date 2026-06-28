@@ -34,6 +34,42 @@ const sampleCards: Card[] = [
     ],
     hskLevel: 1,
   },
+  {
+    id: "3",
+    hanzi: "坐",
+    spanish: "sentarse",
+    answers: ["sentarse"],
+    syllables: [
+      {
+        hanzi: "坐",
+        pinyinNumber: "zuo4",
+        pinyinDisplay: "zuò4",
+        tone: 4,
+      },
+    ],
+    hskLevel: 1,
+  },
+  {
+    id: "4",
+    hanzi: "朋友",
+    spanish: "amigo",
+    answers: ["amigo"],
+    syllables: [
+      {
+        hanzi: "朋",
+        pinyinNumber: "peng2",
+        pinyinDisplay: "péng2",
+        tone: 2,
+      },
+      {
+        hanzi: "友",
+        pinyinNumber: "you3",
+        pinyinDisplay: "yǒu3",
+        tone: 3,
+      },
+    ],
+    hskLevel: 1,
+  },
 ];
 
 describe("session engine", () => {
@@ -41,6 +77,17 @@ describe("session engine", () => {
     expect(isCorrectAnswer(sampleCards[1], "PERRÓ")).toBe(true);
     expect(isCorrectAnswer(sampleCards[1], "perro")).toBe(true);
     expect(isCorrectAnswer(sampleCards[1], "gato")).toBe(false);
+  });
+
+  it("accepts non reflexive infinitives and basic verb forms", () => {
+    expect(isCorrectAnswer(sampleCards[2], "sentar")).toBe(true);
+    expect(isCorrectAnswer(sampleCards[2], "siento")).toBe(false);
+    expect(isCorrectAnswer(sampleCards[2], "sentado")).toBe(true);
+  });
+
+  it("accepts singular and plural noun variants", () => {
+    expect(isCorrectAnswer(sampleCards[3], "amigo")).toBe(true);
+    expect(isCorrectAnswer(sampleCards[3], "amigos")).toBe(true);
   });
 
   it("moves a correct answer to learned and ends when queue is empty", () => {

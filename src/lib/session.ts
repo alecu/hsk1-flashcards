@@ -4,7 +4,7 @@ import type {
   SessionSummary,
   StudyMode,
 } from "../types/cards";
-import { normalizeAnswer } from "./text";
+import { areEquivalentAnswers } from "./text";
 
 export type Session = {
   id: string;
@@ -78,10 +78,7 @@ export function createSession(
 }
 
 export function isCorrectAnswer(card: Card, input: string) {
-  const normalizedInput = normalizeAnswer(input);
-  return card.answers.some(
-    (answer) => normalizeAnswer(answer) === normalizedInput,
-  );
+  return card.answers.some((answer) => areEquivalentAnswers(answer, input));
 }
 
 export function resolveAnswer(session: Session, wasCorrect: boolean) {
