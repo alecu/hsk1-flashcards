@@ -470,16 +470,89 @@ h3 {
 
 .tone-button {
   appearance: none;
+  display: grid;
+  gap: 4px;
   border: 1px solid rgba(98, 68, 46, 0.14);
   border-radius: 14px;
-  padding: 10px 0;
+  padding: 10px 6px;
   background: rgba(255, 255, 255, 0.8);
+  text-align: center;
+  transition:
+    transform 180ms ease,
+    background 180ms ease,
+    color 180ms ease,
+    border-color 180ms ease;
+}
+
+.tone-button-tone {
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+}
+
+.tone-button-label {
+  font-size: 0.96rem;
+  font-weight: 700;
 }
 
 .tone-button-active {
   color: #fff8f1;
-  border-color: rgba(191, 90, 42, 0.26);
-  background: linear-gradient(135deg, #ba5622 0%, #d4762f 100%);
+  box-shadow: 0 10px 22px rgba(98, 68, 46, 0.12);
+}
+
+.tone-button-tone-0 {
+  color: rgba(32, 22, 19, 0.72);
+  background: rgba(126, 116, 108, 0.14);
+}
+
+.tone-button-tone-1 {
+  color: #8f2419;
+  background: rgba(207, 63, 47, 0.16);
+}
+
+.tone-button-tone-2 {
+  color: #a55a0f;
+  background: rgba(233, 139, 33, 0.16);
+}
+
+.tone-button-tone-3 {
+  color: #186a3c;
+  background: rgba(42, 157, 91, 0.16);
+}
+
+.tone-button-tone-4 {
+  color: #1f4f9c;
+  background: rgba(37, 99, 201, 0.16);
+}
+
+.tone-button-tone-0.tone-button-active {
+  color: #fff8f1;
+  border-color: rgba(126, 116, 108, 0.28);
+  background: var(--tone-0);
+}
+
+.tone-button-tone-1.tone-button-active {
+  color: #fff8f1;
+  border-color: rgba(207, 63, 47, 0.28);
+  background: var(--tone-1);
+}
+
+.tone-button-tone-2.tone-button-active {
+  color: #fff8f1;
+  border-color: rgba(233, 139, 33, 0.28);
+  background: var(--tone-2);
+}
+
+.tone-button-tone-3.tone-button-active {
+  color: #fff8f1;
+  border-color: rgba(42, 157, 91, 0.28);
+  background: var(--tone-3);
+}
+
+.tone-button-tone-4.tone-button-active {
+  color: #fff8f1;
+  border-color: rgba(37, 99, 201, 0.28);
+  background: var(--tone-4);
 }
 
 .feedback-panel {

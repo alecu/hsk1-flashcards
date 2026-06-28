@@ -1,6 +1,7 @@
+import { buildToneOptionPinyin } from "../lib/pinyin";
 import { TonePinyinCard } from "./TonePinyinCard";
 import { buildMultipleChoiceOptions } from "../lib/session";
-import type { Card, StudyMode, UserSettings } from "../types/cards";
+import type { Card, StudyMode, Tone, UserSettings } from "../types/cards";
 import type { Session } from "../lib/session";
 
 type Feedback =
@@ -32,6 +33,8 @@ const modeLabel: Record<StudyMode, string> = {
   review: "Revision de errores",
   tones: "Modo tonos",
 };
+
+const toneOptions: Tone[] = [1, 2, 3, 4, 0];
 
 export function SessionScreen({
   allCards,
@@ -82,8 +85,10 @@ export function SessionScreen({
       <section className="study-stage">
         <TonePinyinCard
           card={session.currentCard}
-          colorTones={mode === "tones" ? false : settings.colorTones}
-          plainPinyin={mode === "tones"}
+          colorTones={
+            mode === "tones" ? feedback !== null : settings.colorTones
+          }
+          plainPinyin={mode === "tones" && feedback === null}
           revealSpanish={feedback !== null}
           showPinyin={mode === "tones" ? true : settings.showPinyin}
         />
@@ -116,15 +121,18 @@ export function SessionScreen({
                   <strong>{syllable.hanzi}</strong>
                   <span>{syllable.pinyinNumber.replace(/[0-5]$/, "")}</span>
                   <div className="tone-options">
-                    {[1, 2, 3, 4, 0].map((tone) => (
+                    {toneOptions.map((tone) => (
                       <button
                         type="button"
-                        className={`tone-button ${toneSelections[index] === tone ? "tone-button-active" : ""}`}
+                        className={`tone-button tone-button-tone-${tone} ${toneSelections[index] === tone ? "tone-button-active" : ""}`}
                         key={tone}
                         onClick={() => onToneSelectionChange(index, tone)}
                         disabled={feedback !== null}
                       >
-                        {tone === 0 ? "0" : tone}
+                        <span className="tone-button-tone">{tone}</span>
+                        <span className="tone-button-label">
+                          {buildToneOptionPinyin(syllable.pinyinNumber, tone)}
+                        </span>
                       </button>
                     ))}
                   </div>

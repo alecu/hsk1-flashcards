@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
 import {
+  buildToneOptionPinyin,
   formatPinyinWithToneMark,
   getPinyinSyllables,
   getToneFromPinyin,
@@ -41,5 +42,13 @@ describe("pinyin helpers", () => {
     expect(numericPinyinFromDisplaySyllable("shéi")).toBe("shei2");
     expect(numericPinyinFromDisplaySyllable("nǚ")).toBe("nü3");
     expect(numericPinyinFromDisplaySyllable("ba")).toBe("ba0");
+  });
+
+  it("builds tone option labels from a numeric syllable", () => {
+    expect(buildToneOptionPinyin("xue2", 1)).toBe("xuē1");
+    expect(buildToneOptionPinyin("xue2", 2)).toBe("xué2");
+    expect(buildToneOptionPinyin("xue2", 3)).toBe("xuě3");
+    expect(buildToneOptionPinyin("xue2", 4)).toBe("xuè4");
+    expect(buildToneOptionPinyin("xue2", 0)).toBe("xue0");
   });
 });

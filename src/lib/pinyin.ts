@@ -305,3 +305,12 @@ export function numericPinyinFromDisplaySyllable(displaySyllable: string) {
 export function plainPinyinFromNumericSyllable(numericSyllable: string) {
   return numericSyllable.replace(/[0-5]$/, "");
 }
+
+export function buildToneOptionPinyin(
+  numericSyllable: string,
+  tone: Tone,
+) {
+  return formatPinyinWithToneMark(
+    `${plainPinyinFromNumericSyllable(numericSyllable)}${tone}`,
+  );
+}
