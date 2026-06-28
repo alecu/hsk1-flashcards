@@ -1,3 +1,5 @@
+import { useEffect, useRef } from "react";
+
 import {
   buildToneOptionPinyin,
   plainPinyinFromNumericSyllable,
@@ -54,6 +56,7 @@ export function SessionScreen({
   toneSelections,
   onCancel,
 }: SessionScreenProps) {
+  const studyStageRef = useRef<HTMLElement | null>(null);
   const options =
     mode === "choice"
       ? buildMultipleChoiceOptions(session.currentCard, allCards)
@@ -63,6 +66,15 @@ export function SessionScreen({
 
   const remaining = session.queue.length + 1;
   const progressWidth = `${(session.learnedIds.length / session.roundSize) * 100}%`;
+
+  useEffect(() => {
+    if (typeof studyStageRef.current?.scrollIntoView === "function") {
+      studyStageRef.current.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
+  }, [session.currentCard.id]);
 
   return (
     <main className="app-shell session-layout">
@@ -87,7 +99,7 @@ export function SessionScreen({
         </div>
       </section>
 
-      <section className="study-stage">
+      <section className="study-stage" ref={studyStageRef}>
         <TonePinyinCard
           card={session.currentCard}
           colorTones={isToneMode ? feedback !== null : settings.colorTones}

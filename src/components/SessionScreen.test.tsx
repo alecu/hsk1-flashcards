@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SessionScreen } from "./SessionScreen";
 import { defaultCustomWordList } from "../data/customList";
@@ -42,7 +42,28 @@ const session: Session = {
   roundSize: 1,
 };
 
+const dogCard: Card = {
+  id: "dog",
+  hanzi: "狗",
+  spanish: "perro",
+  answers: ["perro"],
+  syllables: [
+    {
+      hanzi: "狗",
+      pinyinNumber: "gou3",
+      pinyinDisplay: "gǒu3",
+      tone: 3,
+    },
+  ],
+  vocabularySet: "hsk20",
+  hskLevel: 1,
+};
+
 describe("SessionScreen", () => {
+  beforeEach(() => {
+    Element.prototype.scrollIntoView = vi.fn();
+  });
+
   it("shows plain pinyin before validating in tone mode", () => {
     const { container } = render(
       <SessionScreen
@@ -126,5 +147,61 @@ describe("SessionScreen", () => {
     expect(screen.getByText("❌")).toBeInTheDocument();
     expect(screen.getByText("✓")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Siguiente tarjeta" })).toBeVisible();
+  });
+
+  it("scrolls the study stage into view when a new card is shown", () => {
+    const { rerender } = render(
+      <SessionScreen
+        allCards={[catCard, dogCard]}
+        draft=""
+        feedback={null}
+        mode="tones"
+        onCancel={vi.fn()}
+        onChoice={vi.fn()}
+        onDraftChange={vi.fn()}
+        onNext={vi.fn()}
+        onSubmit={vi.fn()}
+        onToneSelectionChange={vi.fn()}
+        session={session}
+        settings={settings}
+        toneSelections={[-1]}
+      />,
+    );
+
+    const scrollIntoViewMock = vi.mocked(Element.prototype.scrollIntoView);
+
+    expect(scrollIntoViewMock).toHaveBeenCalledWith({
+      behavior: "smooth",
+      block: "start",
+    });
+
+    scrollIntoViewMock.mockClear();
+
+    rerender(
+      <SessionScreen
+        allCards={[catCard, dogCard]}
+        draft=""
+        feedback={null}
+        mode="tones"
+        onCancel={vi.fn()}
+        onChoice={vi.fn()}
+        onDraftChange={vi.fn()}
+        onNext={vi.fn()}
+        onSubmit={vi.fn()}
+        onToneSelectionChange={vi.fn()}
+        session={{
+          ...session,
+          currentCard: dogCard,
+        }}
+        settings={settings}
+        toneSelections={[-1]}
+      />,
+    );
+
+    expect(scrollIntoViewMock).toHaveBeenCalledTimes(1);
+    expect(scrollIntoViewMock).toHaveBeenCalledWith({
+      behavior: "smooth",
+      block: "start",
+    });
   });
 });
