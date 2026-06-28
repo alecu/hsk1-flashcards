@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type KeyboardEvent } from "react";
 
 import type { CustomWordRow } from "../data/customList";
 import type {
@@ -82,6 +82,20 @@ const modeCards: Array<{
   },
 ];
 
+const spreadsheetColumns = ["hanzi", "pinyin", "spanish"] as const;
+
+function focusSpreadsheetCell(rowIndex: number, columnIndex: number) {
+  if (typeof document === "undefined") {
+    return;
+  }
+
+  const cell = document.querySelector<HTMLElement>(
+    `[data-spreadsheet-cell="true"][data-row-index="${rowIndex}"][data-column-index="${columnIndex}"]`,
+  );
+
+  cell?.focus();
+}
+
 export function HomeScreen({
   activeVocabularySet,
   totalCards,
@@ -108,6 +122,64 @@ export function HomeScreen({
       setIsCustomEditorOpen(false);
     }
   }, [activeVocabularySet]);
+
+  const handleSpreadsheetKeyDown = (
+    event: KeyboardEvent<HTMLDivElement>,
+    rowIndex: number,
+    columnIndex: number,
+  ) => {
+    let nextRow = rowIndex;
+    let nextColumn = columnIndex;
+
+    switch (event.key) {
+      case "Tab":
+        event.preventDefault();
+        nextColumn = event.shiftKey ? columnIndex - 1 : columnIndex + 1;
+        if (nextColumn < 0) {
+          nextColumn = spreadsheetColumns.length - 1;
+          nextRow = Math.max(0, rowIndex - 1);
+        } else if (nextColumn >= spreadsheetColumns.length) {
+          nextColumn = 0;
+          nextRow = Math.min(customRows.length - 1, rowIndex + 1);
+        }
+        break;
+      case "Enter":
+        event.preventDefault();
+        nextRow = Math.min(customRows.length - 1, rowIndex + 1);
+        break;
+      case "ArrowLeft":
+        if (window.getSelection()?.anchorOffset === 0) {
+          event.preventDefault();
+          nextColumn = Math.max(0, columnIndex - 1);
+        } else {
+          return;
+        }
+        break;
+      case "ArrowRight": {
+        const contentLength = event.currentTarget.textContent?.length ?? 0;
+        const selection = window.getSelection();
+        if (selection?.anchorOffset === contentLength) {
+          event.preventDefault();
+          nextColumn = Math.min(spreadsheetColumns.length - 1, columnIndex + 1);
+        } else {
+          return;
+        }
+        break;
+      }
+      case "ArrowUp":
+        event.preventDefault();
+        nextRow = Math.max(0, rowIndex - 1);
+        break;
+      case "ArrowDown":
+        event.preventDefault();
+        nextRow = Math.min(customRows.length - 1, rowIndex + 1);
+        break;
+      default:
+        return;
+    }
+
+    focusSpreadsheetCell(nextRow, nextColumn);
+  };
 
   return (
     <main className="app-shell">
@@ -199,92 +271,76 @@ export function HomeScreen({
 
             {isCustomEditorOpen ? (
               <div className="custom-table-shell">
-                <div className="custom-table" role="table" aria-label="Lista personal">
-                  <div className="custom-table-head" role="rowgroup">
-                    <div className="custom-table-row custom-table-row-head" role="row">
-                      <span role="columnheader">Hanzi</span>
-                      <span role="columnheader">Pinyin</span>
-                      <span role="columnheader">Castellano</span>
-                      <span role="columnheader">Acción</span>
-                    </div>
-                  </div>
-
-                  <div className="custom-table-body" role="rowgroup">
+                <table className="custom-spreadsheet" aria-label="Lista personal">
+                  <thead>
+                    <tr>
+                      <th className="custom-index-header" scope="col">
+                        #
+                      </th>
+                      <th scope="col">Hanzi</th>
+                      <th scope="col">Pinyin</th>
+                      <th scope="col">Castellano</th>
+                      <th scope="col" className="custom-action-header">
+                        Acción
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
                     {customRows.map((row, index) => (
-                      <div className="custom-table-row" role="row" key={`custom-row-${index}`}>
-                        <div className="custom-cell" role="cell">
-                          <span className="custom-cell-label">Hanzi</span>
-                          <div
-                            className="custom-grid-cell"
-                            contentEditable
-                            suppressContentEditableWarning
-                            data-placeholder="例: 飞机"
-                            spellCheck={false}
-                            onBlur={(event) =>
-                              onCustomRowChange(
-                                index,
-                                "hanzi",
-                                event.currentTarget.textContent ?? "",
-                              )
-                            }
-                          >
-                            {row.hanzi}
-                          </div>
-                        </div>
-
-                        <div className="custom-cell" role="cell">
-                          <span className="custom-cell-label">Pinyin</span>
-                          <div
-                            className="custom-grid-cell"
-                            contentEditable
-                            suppressContentEditableWarning
-                            data-placeholder="fei1ji1"
-                            spellCheck={false}
-                            onBlur={(event) =>
-                              onCustomRowChange(
-                                index,
-                                "pinyin",
-                                event.currentTarget.textContent ?? "",
-                              )
-                            }
-                          >
-                            {row.pinyin}
-                          </div>
-                        </div>
-
-                        <div className="custom-cell" role="cell">
-                          <span className="custom-cell-label">Castellano</span>
-                          <div
-                            className="custom-grid-cell"
-                            contentEditable
-                            suppressContentEditableWarning
-                            data-placeholder="avión"
-                            onBlur={(event) =>
-                              onCustomRowChange(
-                                index,
-                                "spanish",
-                                event.currentTarget.textContent ?? "",
-                              )
-                            }
-                          >
-                            {row.spanish}
-                          </div>
-                        </div>
-
-                        <div className="custom-row-actions">
+                      <tr key={`custom-row-${index}`}>
+                        <th className="custom-row-index" scope="row">
+                          {index + 1}
+                        </th>
+                        {spreadsheetColumns.map((columnKey, columnIndex) => (
+                          <td key={`${index}-${columnKey}`}>
+                            <div
+                              className="custom-grid-cell"
+                              contentEditable
+                              suppressContentEditableWarning
+                              data-placeholder={
+                                columnKey === "hanzi"
+                                  ? "例: 飞机"
+                                  : columnKey === "pinyin"
+                                    ? "fei1ji1"
+                                    : "avión"
+                              }
+                              data-spreadsheet-cell="true"
+                              data-row-index={index}
+                              data-column-index={columnIndex}
+                              spellCheck={columnKey === "spanish"}
+                              onBlur={(event) =>
+                                onCustomRowChange(
+                                  index,
+                                  columnKey,
+                                  event.currentTarget.textContent ?? "",
+                                )
+                              }
+                              onKeyDown={(event) =>
+                                handleSpreadsheetKeyDown(
+                                  event,
+                                  index,
+                                  columnIndex,
+                                )
+                              }
+                            >
+                              {row[columnKey]}
+                            </div>
+                          </td>
+                        ))}
+                        <td className="custom-row-actions">
                           <button
                             type="button"
-                            className="ghost-button"
+                            className="ghost-button custom-delete-button"
                             onClick={() => onCustomRowDelete(index)}
                             disabled={customRows.length === 1}
                           >
                             Borrar
                           </button>
-                        </div>
-                      </div>
+                        </td>
+                      </tr>
                     ))}
-                  </div>
-                </div>
+                  </tbody>
+                </table>
               </div>
             ) : null}
 
