@@ -1,3 +1,5 @@
+import { useEffect, useState } from "react";
+
 import type { CustomWordRow } from "../data/customList";
 import type {
   CardProgress,
@@ -96,9 +98,16 @@ export function HomeScreen({
   onToggleSetting,
   onStart,
 }: HomeScreenProps) {
+  const [isCustomEditorOpen, setIsCustomEditorOpen] = useState(false);
   const knownCards = Object.values(progress).filter(
     (entry) => entry.correct >= 2 && entry.correct > entry.incorrect,
   ).length;
+
+  useEffect(() => {
+    if (activeVocabularySet === "custom") {
+      setIsCustomEditorOpen(false);
+    }
+  }, [activeVocabularySet]);
 
   return (
     <main className="app-shell">
@@ -161,84 +170,123 @@ export function HomeScreen({
           <div className="custom-list-panel">
             <div className="custom-list-header">
               <div>
-                <span>Tabla editable</span>
+                <span>Lista personal</span>
                 <small>
                   Cada fila define una tarjeta. Las variantes se pueden escribir
                   con `/`, por ejemplo `块 / 元` o `小姐 / 女士`.
                 </small>
               </div>
-              <button
-                type="button"
-                className="ghost-button"
-                onClick={onCustomRowAdd}
-              >
-                Agregar fila
-              </button>
-            </div>
-
-            <div className="custom-table-shell">
-              <div className="custom-table" role="table" aria-label="Lista personal">
-                <div className="custom-table-head" role="rowgroup">
-                  <div className="custom-table-row custom-table-row-head" role="row">
-                    <span role="columnheader">Hanzi</span>
-                    <span role="columnheader">Pinyin</span>
-                    <span role="columnheader">Castellano</span>
-                    <span role="columnheader">Acción</span>
-                  </div>
-                </div>
-
-                <div className="custom-table-body" role="rowgroup">
-                  {customRows.map((row, index) => (
-                    <div className="custom-table-row" role="row" key={`custom-row-${index}`}>
-                      <label className="custom-cell">
-                        <span className="custom-cell-label">Hanzi</span>
-                        <input
-                          value={row.hanzi}
-                          onChange={(event) =>
-                            onCustomRowChange(index, "hanzi", event.target.value)
-                          }
-                          placeholder="例: 飞机"
-                        />
-                      </label>
-
-                      <label className="custom-cell">
-                        <span className="custom-cell-label">Pinyin</span>
-                        <input
-                          value={row.pinyin}
-                          onChange={(event) =>
-                            onCustomRowChange(index, "pinyin", event.target.value)
-                          }
-                          placeholder="fei1ji1"
-                          spellCheck={false}
-                        />
-                      </label>
-
-                      <label className="custom-cell">
-                        <span className="custom-cell-label">Castellano</span>
-                        <input
-                          value={row.spanish}
-                          onChange={(event) =>
-                            onCustomRowChange(index, "spanish", event.target.value)
-                          }
-                          placeholder="avión"
-                        />
-                      </label>
-
-                      <div className="custom-row-actions">
-                        <button
-                          type="button"
-                          className="ghost-button"
-                          onClick={() => onCustomRowDelete(index)}
-                          disabled={customRows.length === 1}
-                        >
-                          Borrar
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+              <div className="custom-list-actions">
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={() => setIsCustomEditorOpen((current) => !current)}
+                  aria-expanded={isCustomEditorOpen}
+                >
+                  {isCustomEditorOpen ? "Cerrar editor" : "Editar lista"}
+                </button>
+                {isCustomEditorOpen ? (
+                  <button
+                    type="button"
+                    className="ghost-button"
+                    onClick={onCustomRowAdd}
+                  >
+                    Agregar fila
+                  </button>
+                ) : null}
               </div>
             </div>
+
+            {isCustomEditorOpen ? (
+              <div className="custom-table-shell">
+                <div className="custom-table" role="table" aria-label="Lista personal">
+                  <div className="custom-table-head" role="rowgroup">
+                    <div className="custom-table-row custom-table-row-head" role="row">
+                      <span role="columnheader">Hanzi</span>
+                      <span role="columnheader">Pinyin</span>
+                      <span role="columnheader">Castellano</span>
+                      <span role="columnheader">Acción</span>
+                    </div>
+                  </div>
+
+                  <div className="custom-table-body" role="rowgroup">
+                    {customRows.map((row, index) => (
+                      <div className="custom-table-row" role="row" key={`custom-row-${index}`}>
+                        <div className="custom-cell" role="cell">
+                          <span className="custom-cell-label">Hanzi</span>
+                          <div
+                            className="custom-grid-cell"
+                            contentEditable
+                            suppressContentEditableWarning
+                            data-placeholder="例: 飞机"
+                            spellCheck={false}
+                            onBlur={(event) =>
+                              onCustomRowChange(
+                                index,
+                                "hanzi",
+                                event.currentTarget.textContent ?? "",
+                              )
+                            }
+                          >
+                            {row.hanzi}
+                          </div>
+                        </div>
+
+                        <div className="custom-cell" role="cell">
+                          <span className="custom-cell-label">Pinyin</span>
+                          <div
+                            className="custom-grid-cell"
+                            contentEditable
+                            suppressContentEditableWarning
+                            data-placeholder="fei1ji1"
+                            spellCheck={false}
+                            onBlur={(event) =>
+                              onCustomRowChange(
+                                index,
+                                "pinyin",
+                                event.currentTarget.textContent ?? "",
+                              )
+                            }
+                          >
+                            {row.pinyin}
+                          </div>
+                        </div>
+
+                        <div className="custom-cell" role="cell">
+                          <span className="custom-cell-label">Castellano</span>
+                          <div
+                            className="custom-grid-cell"
+                            contentEditable
+                            suppressContentEditableWarning
+                            data-placeholder="avión"
+                            onBlur={(event) =>
+                              onCustomRowChange(
+                                index,
+                                "spanish",
+                                event.currentTarget.textContent ?? "",
+                              )
+                            }
+                          >
+                            {row.spanish}
+                          </div>
+                        </div>
+
+                        <div className="custom-row-actions">
+                          <button
+                            type="button"
+                            className="ghost-button"
+                            onClick={() => onCustomRowDelete(index)}
+                            disabled={customRows.length === 1}
+                          >
+                            Borrar
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : null}
 
             <div className="custom-list-field">
               <small>

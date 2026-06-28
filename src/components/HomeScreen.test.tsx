@@ -14,7 +14,7 @@ const settings: UserSettings = {
 };
 
 describe("HomeScreen", () => {
-  it("renders the custom vocabulary table", () => {
+  it("keeps the custom editor closed by default", () => {
     render(
       <HomeScreen
         activeVocabularySet="custom"
@@ -37,13 +37,15 @@ describe("HomeScreen", () => {
       />,
     );
 
-    expect(screen.getByRole("table", { name: "Lista personal" })).toBeInTheDocument();
-    expect(screen.getAllByDisplayValue("飞机")).toHaveLength(1);
-    expect(screen.getAllByDisplayValue("fei1ji1")).toHaveLength(1);
-    expect(screen.getAllByDisplayValue("avión")).toHaveLength(1);
+    expect(
+      screen.queryByRole("table", { name: "Lista personal" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Editar lista" }),
+    ).toHaveAttribute("aria-expanded", "false");
   });
 
-  it("wires row editing and actions", () => {
+  it("opens the custom editor and wires spreadsheet-like cell editing", () => {
     const onCustomRowChange = vi.fn();
     const onCustomRowDelete = vi.fn();
     const onCustomRowAdd = vi.fn();
@@ -70,9 +72,18 @@ describe("HomeScreen", () => {
       />,
     );
 
-    fireEvent.change(screen.getByDisplayValue("飞机"), {
-      target: { value: "火车" },
-    });
+    fireEvent.click(screen.getByRole("button", { name: "Editar lista" }));
+
+    expect(screen.getByRole("table", { name: "Lista personal" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Cerrar editor" })).toHaveAttribute(
+      "aria-expanded",
+      "true",
+    );
+
+    const hanziCell = screen.getByText("飞机");
+    hanziCell.textContent = "火车";
+    fireEvent.blur(hanziCell);
+
     fireEvent.click(screen.getByRole("button", { name: "Agregar fila" }));
     fireEvent.click(screen.getAllByRole("button", { name: "Borrar" })[0]);
 

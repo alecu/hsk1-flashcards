@@ -179,6 +179,12 @@ h3 {
   gap: 12px;
 }
 
+.custom-list-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .custom-list-header small {
   display: block;
   margin-top: 6px;
@@ -238,13 +244,26 @@ h3 {
   gap: 6px;
 }
 
-.custom-cell input {
+.custom-grid-cell {
   width: 100%;
   min-height: 46px;
   border: 1px solid rgba(98, 68, 46, 0.16);
   border-radius: 16px;
   background: rgba(255, 255, 255, 0.82);
   padding: 12px 14px;
+  line-height: 1.35;
+  white-space: pre-wrap;
+  outline: none;
+}
+
+.custom-grid-cell:focus {
+  border-color: rgba(191, 90, 42, 0.34);
+  box-shadow: 0 0 0 3px rgba(191, 90, 42, 0.12);
+}
+
+.custom-grid-cell:empty::before {
+  content: attr(data-placeholder);
+  color: rgba(32, 22, 19, 0.36);
 }
 
 .custom-cell-label {
