@@ -189,11 +189,15 @@ export function HomeScreen({
           <h1 className="hero-title-mark">
             <span className="hero-title-syllable">
               <span className="hero-title-hanzi">近</span>
-              <span className="hero-title-pinyin">Jìn</span>
+              <span className="pinyin hero-title-pinyin" data-tone="4">
+                Jìn
+              </span>
             </span>
             <span className="hero-title-syllable">
               <span className="hero-title-hanzi">百</span>
-              <span className="hero-title-pinyin">Bǎi</span>
+              <span className="pinyin hero-title-pinyin" data-tone="3">
+                Bǎi
+              </span>
             </span>
           </h1>
           <p className="hero-copy">

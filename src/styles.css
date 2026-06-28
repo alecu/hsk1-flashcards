@@ -109,11 +109,10 @@ button {
 }
 
 .hero-title-pinyin {
+  min-width: 0;
+  padding: 0.42rem 0.8rem;
   font-size: clamp(1rem, 3vw, 1.35rem);
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: none;
-  color: rgba(32, 22, 19, 0.72);
+  letter-spacing: 0.04em;
 }
 
 .eyebrow {
