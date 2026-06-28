@@ -16,8 +16,11 @@ export function TonePinyinCard({
   return (
     <article className="study-card">
       <div className="hanzi-row" aria-label={`Palabra en chino: ${card.hanzi}`}>
-        {card.syllables.map((syllable) => (
-          <div className="syllable-block" key={`${card.id}-${syllable.hanzi}`}>
+        {card.syllables.map((syllable, index) => (
+          <div
+            className="syllable-block"
+            key={`${card.id}-${index}-${syllable.hanzi}-${syllable.pinyinNumber}`}
+          >
             <span className="hanzi-char">{syllable.hanzi}</span>
             {showPinyin ? (
               <span
