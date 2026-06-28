@@ -1,0 +1,7 @@
+dist
+node_modules
+.DS_Store
+*.tsbuildinfo
+vite.config.js
+vite.config.d.ts
+leonsilicon-hsk2.0-0.0.0.tgz
