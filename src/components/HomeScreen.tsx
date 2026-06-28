@@ -190,13 +190,13 @@ export function HomeScreen({
             <span className="hero-title-syllable">
               <span className="hero-title-hanzi">近</span>
               <span className="pinyin hero-title-pinyin" data-tone="4">
-                Jìn
+                jìn4
               </span>
             </span>
             <span className="hero-title-syllable">
               <span className="hero-title-hanzi">百</span>
               <span className="pinyin hero-title-pinyin" data-tone="3">
-                Bǎi
+                bǎi3
               </span>
             </span>
           </h1>
