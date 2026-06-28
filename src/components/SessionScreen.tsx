@@ -59,6 +59,9 @@ export function SessionScreen({
   onCancel,
 }: SessionScreenProps) {
   const [audioStatus, setAudioStatus] = useState<string | null>(null);
+  const toneAudioEnabled = !(
+    (import.meta as ImportMeta & { env?: { PROD?: boolean } }).env?.PROD ?? false
+  );
   const options =
     mode === "choice"
       ? buildMultipleChoiceOptions(session.currentCard, allCards)
@@ -127,7 +130,12 @@ export function SessionScreen({
               <button
                 type="button"
                 className="ghost-button"
+                disabled={!toneAudioEnabled}
                 onClick={async () => {
+                  if (!toneAudioEnabled) {
+                    return;
+                  }
+
                   try {
                     const result = await playTonePerfectSequence(
                       session.currentCard.syllables.map(
@@ -155,8 +163,9 @@ export function SessionScreen({
                 Escuchar palabra
               </button>
               <small>
-                Audio Tone Perfect disponible para tonos 1-4. Fuente: Michigan
-                State University.
+                {toneAudioEnabled
+                  ? "Audio Tone Perfect disponible para tonos 1-4. Fuente: Michigan State University."
+                  : "Audio Tone Perfect deshabilitado en producción."}
               </small>
             </div>
             <div className="tones-grid">
@@ -167,8 +176,15 @@ export function SessionScreen({
                     <button
                       type="button"
                       className="ghost-button tone-audio-button"
-                      disabled={!hasTonePerfectAudio(syllable.pinyinNumber)}
+                      disabled={
+                        !toneAudioEnabled ||
+                        !hasTonePerfectAudio(syllable.pinyinNumber)
+                      }
                       onClick={async () => {
+                        if (!toneAudioEnabled) {
+                          return;
+                        }
+
                         try {
                           const played = await playTonePerfectSyllable(
                             syllable.pinyinNumber,
