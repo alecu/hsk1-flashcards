@@ -301,3 +301,7 @@ export function numericPinyinFromDisplaySyllable(displaySyllable: string) {
 
   return `${base}${tone}`;
 }
+
+export function plainPinyinFromNumericSyllable(numericSyllable: string) {
+  return numericSyllable.replace(/[0-5]$/, "");
+}

@@ -81,6 +81,16 @@ export function isCorrectAnswer(card: Card, input: string) {
   return card.answers.some((answer) => areEquivalentAnswers(answer, input));
 }
 
+export function areCorrectToneSelections(card: Card, selections: number[]) {
+  if (selections.length !== card.syllables.length) {
+    return false;
+  }
+
+  return card.syllables.every(
+    (syllable, index) => syllable.tone === selections[index],
+  );
+}
+
 export function resolveAnswer(session: Session, wasCorrect: boolean) {
   const learnedIds = [...session.learnedIds];
   const incorrectIds = [...session.incorrectIds];

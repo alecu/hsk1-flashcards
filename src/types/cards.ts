@@ -18,7 +18,7 @@ export type Card = {
   hskLevel: 1;
 };
 
-export type StudyMode = "typing" | "choice" | "review";
+export type StudyMode = "typing" | "choice" | "review" | "tones";
 
 export type CardProgress = {
   attempts: number;

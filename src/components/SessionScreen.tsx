@@ -17,10 +17,12 @@ type SessionScreenProps = {
   onChoice: (value: string) => void;
   onDraftChange: (value: string) => void;
   onNext: () => void;
+  onToneSelectionChange: (index: number, tone: number) => void;
   onSubmit: () => void;
   draft: string;
   session: Session;
   settings: UserSettings;
+  toneSelections: number[];
   onCancel: () => void;
 };
 
@@ -28,6 +30,7 @@ const modeLabel: Record<StudyMode, string> = {
   typing: "Chino -> Castellano",
   choice: "Multiple choice",
   review: "Revision de errores",
+  tones: "Modo tonos",
 };
 
 export function SessionScreen({
@@ -37,10 +40,12 @@ export function SessionScreen({
   onChoice,
   onDraftChange,
   onNext,
+  onToneSelectionChange,
   onSubmit,
   draft,
   session,
   settings,
+  toneSelections,
   onCancel,
 }: SessionScreenProps) {
   const options =
@@ -77,9 +82,10 @@ export function SessionScreen({
       <section className="study-stage">
         <TonePinyinCard
           card={session.currentCard}
-          colorTones={settings.colorTones}
+          colorTones={mode === "tones" ? false : settings.colorTones}
+          plainPinyin={mode === "tones"}
           revealSpanish={feedback !== null}
-          showPinyin={settings.showPinyin}
+          showPinyin={mode === "tones" ? true : settings.showPinyin}
         />
 
         {mode === "choice" ? (
@@ -95,6 +101,48 @@ export function SessionScreen({
               </button>
             ))}
           </div>
+        ) : mode === "tones" ? (
+          <form
+            className="tones-form"
+            onSubmit={(event) => {
+              event.preventDefault();
+              onSubmit();
+            }}
+          >
+            <label>Elegi el tono correcto para cada silaba</label>
+            <div className="tones-grid">
+              {session.currentCard.syllables.map((syllable, index) => (
+                <div className="tone-prompt" key={`${session.currentCard.id}-tone-${index}`}>
+                  <strong>{syllable.hanzi}</strong>
+                  <span>{syllable.pinyinNumber.replace(/[0-5]$/, "")}</span>
+                  <div className="tone-options">
+                    {[1, 2, 3, 4, 0].map((tone) => (
+                      <button
+                        type="button"
+                        className={`tone-button ${toneSelections[index] === tone ? "tone-button-active" : ""}`}
+                        key={tone}
+                        onClick={() => onToneSelectionChange(index, tone)}
+                        disabled={feedback !== null}
+                      >
+                        {tone === 0 ? "0" : tone}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+            <button
+              type="submit"
+              className="primary-button"
+              disabled={
+                feedback !== null ||
+                toneSelections.length !== session.currentCard.syllables.length ||
+                toneSelections.some((tone) => tone === -1)
+              }
+            >
+              Validar tonos
+            </button>
+          </form>
         ) : (
           <form
             className="answer-form"
@@ -135,7 +183,9 @@ export function SessionScreen({
             <span>
               {feedback.status === "correct"
                 ? `La tarjeta pasa a aprendidas.`
-                : `La respuesta correcta es "${session.currentCard.spanish}" y la tarjeta vuelve a la pila.`}
+                : mode === "tones"
+                  ? `Los tonos correctos son ${session.currentCard.syllables.map((syllable) => syllable.tone).join(" - ")} y la tarjeta vuelve a la pila.`
+                  : `La respuesta correcta es "${session.currentCard.spanish}" y la tarjeta vuelve a la pila.`}
             </span>
             {feedback.submittedAnswer ? (
               <span>Ingresaste: {feedback.submittedAnswer}</span>

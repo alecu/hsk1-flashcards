@@ -361,6 +361,12 @@ h3 {
   box-shadow: none;
 }
 
+.pinyin-plain {
+  color: var(--ink);
+  background: rgba(98, 68, 46, 0.08);
+  box-shadow: none;
+}
+
 .pinyin[data-tone="0"] {
   background: var(--tone-0);
 }
@@ -425,6 +431,57 @@ h3 {
   gap: 10px;
 }
 
+.tones-form {
+  display: grid;
+  gap: 14px;
+}
+
+.tones-form label {
+  font-weight: 600;
+}
+
+.tones-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.tone-prompt {
+  display: grid;
+  gap: 8px;
+  padding: 16px;
+  border-radius: 20px;
+  border: 1px solid rgba(98, 68, 46, 0.12);
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.tone-prompt strong {
+  font-size: 1.4rem;
+}
+
+.tone-prompt span {
+  color: rgba(32, 22, 19, 0.72);
+}
+
+.tone-options {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.tone-button {
+  appearance: none;
+  border: 1px solid rgba(98, 68, 46, 0.14);
+  border-radius: 14px;
+  padding: 10px 0;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.tone-button-active {
+  color: #fff8f1;
+  border-color: rgba(191, 90, 42, 0.26);
+  background: linear-gradient(135deg, #ba5622 0%, #d4762f 100%);
+}
+
 .feedback-panel {
   display: grid;
   gap: 8px;
@@ -486,6 +543,10 @@ h3 {
   }
 
   .choice-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tones-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

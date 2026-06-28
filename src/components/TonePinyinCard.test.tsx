@@ -105,6 +105,21 @@ describe("TonePinyinCard", () => {
     expect(screen.queryByText("ma1")).not.toBeInTheDocument();
   });
 
+  it("renders plain pinyin without tone number in tone mode", () => {
+    render(
+      <TonePinyinCard
+        card={card}
+        colorTones={false}
+        plainPinyin
+        revealSpanish={false}
+        showPinyin
+      />,
+    );
+
+    expect(screen.getByText("mao")).toBeInTheDocument();
+    expect(screen.queryByText("māo1")).not.toBeInTheDocument();
+  });
+
   it("does not leak a duplicated first syllable when rerendering from 爸爸 to 饭店", () => {
     const { rerender, container } = render(
       <TonePinyinCard

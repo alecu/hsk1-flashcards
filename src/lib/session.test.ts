@@ -1,6 +1,11 @@
 import { describe, expect, it } from "vitest";
 
-import { createSession, isCorrectAnswer, resolveAnswer } from "./session";
+import {
+  areCorrectToneSelections,
+  createSession,
+  isCorrectAnswer,
+  resolveAnswer,
+} from "./session";
 import type { Card } from "../types/cards";
 
 const sampleCards: Card[] = [
@@ -100,6 +105,13 @@ describe("session engine", () => {
     expect(isCorrectAnswer(sampleCards[0], "el gato")).toBe(true);
     expect(isCorrectAnswer(sampleCards[1], "los perros")).toBe(true);
     expect(isCorrectAnswer(sampleCards[1], "un perro")).toBe(true);
+  });
+
+  it("validates tone selections syllable by syllable", () => {
+    expect(areCorrectToneSelections(sampleCards[0], [1])).toBe(true);
+    expect(areCorrectToneSelections(sampleCards[0], [4])).toBe(false);
+    expect(areCorrectToneSelections(sampleCards[3], [2, 3])).toBe(true);
+    expect(areCorrectToneSelections(sampleCards[3], [2, 4])).toBe(false);
   });
 
   it("moves a correct answer to learned and ends when queue is empty", () => {

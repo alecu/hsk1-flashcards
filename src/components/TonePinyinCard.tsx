@@ -1,8 +1,10 @@
+import { plainPinyinFromNumericSyllable } from "../lib/pinyin";
 import type { Card } from "../types/cards";
 
 type TonePinyinCardProps = {
   card: Card;
   colorTones: boolean;
+  plainPinyin?: boolean;
   revealSpanish?: boolean;
   showPinyin: boolean;
 };
@@ -10,6 +12,7 @@ type TonePinyinCardProps = {
 export function TonePinyinCard({
   card,
   colorTones,
+  plainPinyin = false,
   revealSpanish = false,
   showPinyin,
 }: TonePinyinCardProps) {
@@ -24,10 +27,12 @@ export function TonePinyinCard({
             <span className="hanzi-char">{syllable.hanzi}</span>
             {showPinyin ? (
               <span
-                className="pinyin"
+                className={`pinyin ${plainPinyin ? "pinyin-plain" : ""}`}
                 data-tone={colorTones ? syllable.tone : 0}
               >
-                {syllable.pinyinDisplay}
+                {plainPinyin
+                  ? plainPinyinFromNumericSyllable(syllable.pinyinNumber)
+                  : syllable.pinyinDisplay}
               </span>
             ) : (
               <span className="pinyin pinyin-hidden">pinyin oculto</span>

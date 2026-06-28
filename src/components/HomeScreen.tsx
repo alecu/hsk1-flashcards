@@ -57,6 +57,12 @@ const modeCards: Array<{
     description:
       "Construye una ronda con las tarjetas falladas recientemente.",
   },
+  {
+    id: "tones",
+    title: "Modo tonos",
+    description:
+      "Muestra el hanzi y el pinyin plano para identificar el tono correcto de cada silaba.",
+  },
 ];
 
 export function HomeScreen({

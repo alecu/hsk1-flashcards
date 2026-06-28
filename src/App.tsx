@@ -5,6 +5,7 @@ import { ResultsScreen } from "./components/ResultsScreen";
 import { SessionScreen } from "./components/SessionScreen";
 import { vocabularyDecks } from "./data/cards";
 import {
+  areCorrectToneSelections,
   createSession,
   isCorrectAnswer,
   pickRoundCards,
@@ -46,6 +47,7 @@ export default function App() {
   const [pendingResult, setPendingResult] = useState<"correct" | "incorrect" | null>(
     null,
   );
+  const [toneSelections, setToneSelections] = useState<number[]>([]);
   const [sessionUpdates, setSessionUpdates] = useState<
     Array<{ cardId: string; result: "correct" | "incorrect" }>
   >([]);
@@ -78,6 +80,9 @@ export default function App() {
     setDraft("");
     setFeedback(null);
     setPendingResult(null);
+    setToneSelections(
+      Array.from({ length: session.currentCard.syllables.length }, () => -1),
+    );
     setSessionUpdates([]);
     setScreenState({ name: "session", session, mode });
   };
@@ -113,6 +118,18 @@ export default function App() {
     commitAnswer(draft, wasCorrect ? "correct" : "incorrect");
   };
 
+  const handleSubmitTones = () => {
+    if (screenState.name !== "session") {
+      return;
+    }
+
+    const wasCorrect = areCorrectToneSelections(
+      screenState.session.currentCard,
+      toneSelections,
+    );
+    commitAnswer(toneSelections.join(" - "), wasCorrect ? "correct" : "incorrect");
+  };
+
   const handleChoice = (value: string) => {
     if (screenState.name !== "session") {
       return;
@@ -141,6 +158,14 @@ export default function App() {
     setDraft("");
     setFeedback(null);
     setPendingResult(null);
+    setToneSelections(
+      result.done
+        ? []
+        : Array.from(
+            { length: result.session.currentCard.syllables.length },
+            () => -1,
+          ),
+    );
 
     if (result.done) {
       const nextProgress = buildNextProgress(
@@ -180,15 +205,26 @@ export default function App() {
           setDraft("");
           setFeedback(null);
           setPendingResult(null);
+          setToneSelections([]);
           setSessionUpdates([]);
           setScreenState({ name: "home" });
         }}
         onChoice={handleChoice}
         onDraftChange={setDraft}
         onNext={handleNext}
-        onSubmit={handleSubmitTyping}
+        onToneSelectionChange={(index, tone) =>
+          setToneSelections((current) =>
+            current.map((value, currentIndex) =>
+              currentIndex === index ? tone : value,
+            ),
+          )
+        }
+        onSubmit={
+          screenState.mode === "tones" ? handleSubmitTones : handleSubmitTyping
+        }
         session={screenState.session}
         settings={persistedState.settings}
+        toneSelections={toneSelections}
       />
     );
   }
