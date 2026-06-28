@@ -26,4 +26,18 @@ describe("hsk1 dataset", () => {
       },
     ]);
   });
+
+  it("uses the expected spoken reading for 谁", () => {
+    const whoCard = hsk1Cards.find((card) => card.hanzi === "谁");
+
+    expect(whoCard).toBeDefined();
+    expect(whoCard?.syllables).toEqual([
+      {
+        hanzi: "谁",
+        pinyinNumber: "shei2",
+        pinyinDisplay: "shéi2",
+        tone: 2,
+      },
+    ]);
+  });
 });

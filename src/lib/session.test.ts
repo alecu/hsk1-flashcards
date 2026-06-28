@@ -88,6 +88,14 @@ describe("session engine", () => {
   it("accepts singular and plural noun variants", () => {
     expect(isCorrectAnswer(sampleCards[3], "amigo")).toBe(true);
     expect(isCorrectAnswer(sampleCards[3], "amigos")).toBe(true);
+    expect(isCorrectAnswer(sampleCards[3], "amiga")).toBe(true);
+    expect(isCorrectAnswer(sampleCards[3], "las amigas")).toBe(true);
+  });
+
+  it("accepts optional leading articles", () => {
+    expect(isCorrectAnswer(sampleCards[0], "el gato")).toBe(true);
+    expect(isCorrectAnswer(sampleCards[1], "los perros")).toBe(true);
+    expect(isCorrectAnswer(sampleCards[1], "un perro")).toBe(true);
   });
 
   it("moves a correct answer to learned and ends when queue is empty", () => {

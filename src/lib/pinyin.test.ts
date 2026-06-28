@@ -10,6 +10,7 @@ describe("pinyin helpers", () => {
   it("extracts syllables from chinese words without injecting phantom prefixes", () => {
     expect(getPinyinSyllables("猫")).toEqual(["mao1"]);
     expect(getPinyinSyllables("你好")).toEqual(["ni3", "hao3"]);
+    expect(getPinyinSyllables("谁")).toEqual(["shei2"]);
   });
 
   it("extracts tone numbers", () => {
@@ -25,5 +26,6 @@ describe("pinyin helpers", () => {
     expect(formatPinyinWithToneMark("mao1")).toBe("māo1");
     expect(formatPinyinWithToneMark("xie4")).toBe("xiè4");
     expect(formatPinyinWithToneMark("shui3")).toBe("shuǐ3");
+    expect(formatPinyinWithToneMark("shei2")).toBe("shéi2");
   });
 });
