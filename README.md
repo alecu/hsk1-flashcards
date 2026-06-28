@@ -6,7 +6,8 @@ Aplicacion web estatica para practicar vocabulario basico de chino simplificado 
 
 El repositorio ya incluye un MVP funcional con:
 
-- 150 palabras de HSK1.
+- HSK 2.0 con 150 palabras.
+- HSK 3.0 con 300 palabras.
 - Render de hanzi con pinyin por silaba.
 - Colores por tono.
 - Modo `Chino -> Castellano`.
@@ -36,6 +37,12 @@ El repositorio ya incluye un MVP funcional con:
 - `docs/`: documentacion de producto y tecnica.
 - `data/`: dataset HSK1 y otros recursos estaticos.
 - `src/`: aplicacion cliente.
+
+## Fuentes de datos
+
+- HSK 2.0 nivel 1: paquete `@leonsilicon/hsk2.0`
+- HSK 3.0 nivel 1: CSV descargado desde `studycli.org` y guardado en [data/cli-hsk1-3.0.csv](/Users/alecu/Documents/Codex/2026-06-28-hola-quiero-que-hagamos-un-plan/data/cli-hsk1-3.0.csv:1)
+- Dataset normalizado de la fuente HSK 3.0: [src/data/hsk30Source.json](/Users/alecu/Documents/Codex/2026-06-28-hola-quiero-que-hagamos-un-plan/src/data/hsk30Source.json:1)
 
 ## Desarrollo local
 

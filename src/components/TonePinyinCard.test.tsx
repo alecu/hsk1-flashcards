@@ -17,6 +17,7 @@ const card: Card = {
       tone: 1,
     },
   ],
+  vocabularySet: "hsk20",
   hskLevel: 1,
 };
 

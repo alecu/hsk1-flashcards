@@ -4,6 +4,8 @@ import {
   formatPinyinWithToneMark,
   getPinyinSyllables,
   getToneFromPinyin,
+  numericPinyinFromDisplaySyllable,
+  segmentDisplayPinyin,
 } from "./pinyin";
 
 describe("pinyin helpers", () => {
@@ -27,5 +29,17 @@ describe("pinyin helpers", () => {
     expect(formatPinyinWithToneMark("xie4")).toBe("xiè4");
     expect(formatPinyinWithToneMark("shui3")).toBe("shuǐ3");
     expect(formatPinyinWithToneMark("shei2")).toBe("shéi2");
+  });
+
+  it("segments source pinyin from the downloaded HSK 3.0 list", () => {
+    expect(segmentDisplayPinyin("nǚ'ér", "女儿")).toEqual(["nǚ", "ér"]);
+    expect(segmentDisplayPinyin("shéi", "谁")).toEqual(["shéi"]);
+    expect(segmentDisplayPinyin("yìdiǎnr", "一点儿")).toEqual(["yì", "diǎnr"]);
+  });
+
+  it("converts accented syllables back to numeric pinyin", () => {
+    expect(numericPinyinFromDisplaySyllable("shéi")).toBe("shei2");
+    expect(numericPinyinFromDisplaySyllable("nǚ")).toBe("nü3");
+    expect(numericPinyinFromDisplaySyllable("ba")).toBe("ba0");
   });
 });

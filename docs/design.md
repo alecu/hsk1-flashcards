@@ -284,7 +284,7 @@ Para evitar friccion al empezar:
 
 El MVP implementado en este repositorio cubre:
 
-- Dataset HSK1 completo como vocabulario base.
+- Soporte para HSK 2.0 nivel 1 y HSK 3.0 nivel 1.
 - Catalogo en castellano con respuestas alternativas.
 - Generacion de pinyin con tonos por silaba.
 - Modo `Chino -> Castellano`.
@@ -292,3 +292,17 @@ El MVP implementado en este repositorio cubre:
 - Modo `Revision de errores`.
 - Persistencia local con `localStorage`.
 - Build y deploy automatico a GitHub Pages.
+
+## 17. Dataset dual
+
+La app ahora permite elegir entre dos listas:
+
+- `HSK 2.0`: 150 palabras, construidas desde el paquete `@leonsilicon/hsk2.0`.
+- `HSK 3.0`: 300 palabras, descargadas desde la herramienta de CLI y almacenadas en el repositorio.
+
+Para HSK 3.0:
+
+- se conserva el vocabulario fuente descargado
+- se normaliza internamente a JSON
+- se usa un glosario propio en castellano
+- el pinyin se segmenta a nivel de silaba usando el texto fuente descargado, con soporte para casos como `谁` y palabras con `儿化`

@@ -1,4 +1,4 @@
-type GlossaryEntry = {
+export type GlossaryEntry = {
   spanish: string;
   aliases?: string[];
 };

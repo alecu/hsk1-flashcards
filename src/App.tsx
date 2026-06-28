@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { HomeScreen } from "./components/HomeScreen";
 import { ResultsScreen } from "./components/ResultsScreen";
 import { SessionScreen } from "./components/SessionScreen";
-import { hsk1Cards } from "./data/cards";
+import { vocabularyDecks } from "./data/cards";
 import {
   createSession,
   isCorrectAnswer,
@@ -50,6 +50,9 @@ export default function App() {
     Array<{ cardId: string; result: "correct" | "incorrect" }>
   >([]);
 
+  const activeDeck = vocabularyDecks[persistedState.settings.vocabularySet];
+  const activeCards = activeDeck.cards;
+
   useEffect(() => {
     setPersistedState(loadState());
   }, []);
@@ -60,7 +63,7 @@ export default function App() {
 
   const handleStart = (mode: StudyMode) => {
     const roundCards = pickRoundCards(
-      hsk1Cards,
+      activeCards,
       persistedState.settings.roundSize,
       persistedState.progress,
       mode,
@@ -162,14 +165,14 @@ export default function App() {
     });
   };
 
-  const mistakeCards = hsk1Cards.filter(
+  const mistakeCards = activeCards.filter(
     (card) => (persistedState.progress[card.id]?.incorrect ?? 0) > 0,
   ).length;
 
   if (screenState.name === "session") {
     return (
       <SessionScreen
-        allCards={hsk1Cards}
+        allCards={activeCards}
         draft={draft}
         feedback={feedback}
         mode={screenState.mode}
@@ -193,7 +196,7 @@ export default function App() {
   if (screenState.name === "results") {
     return (
       <ResultsScreen
-        totalCards={hsk1Cards.length}
+        totalCards={activeCards.length}
         summary={screenState.summary}
         onRestart={() => setScreenState({ name: "home" })}
       />
@@ -202,10 +205,17 @@ export default function App() {
 
   return (
     <HomeScreen
-      totalCards={hsk1Cards.length}
+      activeVocabularySet={persistedState.settings.vocabularySet}
+      totalCards={activeCards.length}
       mistakeCards={mistakeCards}
       progress={persistedState.progress}
       settings={persistedState.settings}
+      onVocabularySetChange={(value) =>
+        handleSettingsChange({
+          ...persistedState.settings,
+          vocabularySet: value,
+        })
+      }
       onRoundSizeChange={(value) =>
         handleSettingsChange({ ...persistedState.settings, roundSize: value })
       }

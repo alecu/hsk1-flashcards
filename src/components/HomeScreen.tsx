@@ -1,14 +1,38 @@
-import type { CardProgress, StudyMode, UserSettings } from "../types/cards";
+import type {
+  CardProgress,
+  StudyMode,
+  UserSettings,
+  VocabularySet,
+} from "../types/cards";
 
 type HomeScreenProps = {
+  activeVocabularySet: VocabularySet;
   totalCards: number;
   mistakeCards: number;
   progress: Record<string, CardProgress>;
   settings: UserSettings;
+  onVocabularySetChange: (value: VocabularySet) => void;
   onRoundSizeChange: (value: number) => void;
   onToggleSetting: (key: "showPinyin" | "colorTones") => void;
   onStart: (mode: StudyMode) => void;
 };
+
+const vocabularyOptions: Array<{
+  id: VocabularySet;
+  title: string;
+  description: string;
+}> = [
+  {
+    id: "hsk20",
+    title: "HSK 2.0",
+    description: "Nivel clasico con 150 palabras.",
+  },
+  {
+    id: "hsk30",
+    title: "HSK 3.0",
+    description: "Nueva lista con 300 palabras base.",
+  },
+];
 
 const modeCards: Array<{
   id: StudyMode;
@@ -36,10 +60,12 @@ const modeCards: Array<{
 ];
 
 export function HomeScreen({
+  activeVocabularySet,
   totalCards,
   mistakeCards,
   progress,
   settings,
+  onVocabularySetChange,
   onRoundSizeChange,
   onToggleSetting,
   onStart,
@@ -55,14 +81,17 @@ export function HomeScreen({
           <p className="eyebrow">HSK1 FlashCards</p>
           <h1>Mandarin inicial, sin backend y lista para GitHub Pages.</h1>
           <p className="hero-copy">
-            MVP en browser con las 150 palabras de HSK1, pinyin por silaba,
-            colores por tono y rondas reinsertables hasta dominar cada tarjeta.
+            La app ahora permite elegir entre el vocabulario HSK 2.0 de 150
+            palabras y el HSK 3.0 de 300 palabras, con el mismo motor de
+            rondas, pinyin por silaba y colores por tono.
           </p>
         </div>
 
         <div className="stats-grid">
           <div className="stat-card">
-            <span className="stat-label">Tarjetas HSK1</span>
+            <span className="stat-label">
+              {activeVocabularySet === "hsk20" ? "Tarjetas HSK 2.0" : "Tarjetas HSK 3.0"}
+            </span>
             <strong>{totalCards}</strong>
           </div>
           <div className="stat-card">
@@ -73,6 +102,29 @@ export function HomeScreen({
             <span className="stat-label">Con errores</span>
             <strong>{mistakeCards}</strong>
           </div>
+        </div>
+      </section>
+
+      <section className="control-panel">
+        <div className="panel-header">
+          <div>
+            <p className="eyebrow">Vocabulario</p>
+            <h2>Elegir lista</h2>
+          </div>
+        </div>
+
+        <div className="deck-switcher">
+          {vocabularyOptions.map((option) => (
+            <button
+              key={option.id}
+              className={`deck-option ${activeVocabularySet === option.id ? "deck-option-active" : ""}`}
+              onClick={() => onVocabularySetChange(option.id)}
+              type="button"
+            >
+              <strong>{option.title}</strong>
+              <span>{option.description}</span>
+            </button>
+          ))}
         </div>
       </section>
 

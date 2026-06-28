@@ -1,4 +1,5 @@
 export type Tone = 0 | 1 | 2 | 3 | 4;
+export type VocabularySet = "hsk20" | "hsk30";
 
 export type CardSyllable = {
   hanzi: string;
@@ -13,6 +14,7 @@ export type Card = {
   spanish: string;
   answers: string[];
   syllables: CardSyllable[];
+  vocabularySet: VocabularySet;
   hskLevel: 1;
 };
 
@@ -31,6 +33,7 @@ export type UserSettings = {
   roundSize: number;
   showPinyin: boolean;
   colorTones: boolean;
+  vocabularySet: VocabularySet;
 };
 
 export type PersistedState = {

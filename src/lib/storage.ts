@@ -11,6 +11,7 @@ export const defaultSettings: UserSettings = {
   roundSize: 20,
   showPinyin: true,
   colorTones: true,
+  vocabularySet: "hsk20",
 };
 
 export const defaultPersistedState: PersistedState = {

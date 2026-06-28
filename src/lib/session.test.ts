@@ -17,6 +17,7 @@ const sampleCards: Card[] = [
         tone: 1,
       },
     ],
+    vocabularySet: "hsk20",
     hskLevel: 1,
   },
   {
@@ -32,6 +33,7 @@ const sampleCards: Card[] = [
         tone: 3,
       },
     ],
+    vocabularySet: "hsk20",
     hskLevel: 1,
   },
   {
@@ -47,6 +49,7 @@ const sampleCards: Card[] = [
         tone: 4,
       },
     ],
+    vocabularySet: "hsk20",
     hskLevel: 1,
   },
   {
@@ -68,6 +71,7 @@ const sampleCards: Card[] = [
         tone: 3,
       },
     ],
+    vocabularySet: "hsk20",
     hskLevel: 1,
   },
 ];
