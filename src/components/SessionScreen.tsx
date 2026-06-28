@@ -1,4 +1,7 @@
-import { buildToneOptionPinyin } from "../lib/pinyin";
+import {
+  buildToneOptionPinyin,
+  plainPinyinFromNumericSyllable,
+} from "../lib/pinyin";
 import { TonePinyinCard } from "./TonePinyinCard";
 import { buildMultipleChoiceOptions } from "../lib/session";
 import type { Card, StudyMode, Tone, UserSettings } from "../types/cards";
@@ -55,6 +58,8 @@ export function SessionScreen({
     mode === "choice"
       ? buildMultipleChoiceOptions(session.currentCard, allCards)
       : [];
+  const isToneMode = mode === "tones";
+  const isToneFeedbackVisible = isToneMode && feedback !== null;
 
   const remaining = session.queue.length + 1;
   const progressWidth = `${(session.learnedIds.length / session.roundSize) * 100}%`;
@@ -85,12 +90,12 @@ export function SessionScreen({
       <section className="study-stage">
         <TonePinyinCard
           card={session.currentCard}
-          colorTones={
-            mode === "tones" ? feedback !== null : settings.colorTones
-          }
-          plainPinyin={mode === "tones" && feedback === null}
+          colorTones={isToneMode ? feedback !== null : settings.colorTones}
+          compactSpanish={isToneFeedbackVisible}
+          hideSpanishLabel={isToneFeedbackVisible}
+          plainPinyin={isToneMode && feedback === null}
           revealSpanish={feedback !== null}
-          showPinyin={mode === "tones" ? true : settings.showPinyin}
+          showPinyin={isToneMode ? true : settings.showPinyin}
         />
 
         {mode === "choice" ? (
@@ -106,7 +111,7 @@ export function SessionScreen({
               </button>
             ))}
           </div>
-        ) : mode === "tones" ? (
+        ) : isToneMode && feedback === null ? (
           <form
             className="tones-form"
             onSubmit={(event) => {
@@ -151,6 +156,58 @@ export function SessionScreen({
               Validar tonos
             </button>
           </form>
+        ) : isToneMode ? (
+          <div
+            className={`feedback-panel tone-feedback-panel feedback-${feedback?.status ?? "correct"}`}
+            role="status"
+          >
+            <div className="tone-feedback-row" aria-label="Tonos elegidos">
+              <span className="tone-feedback-icon">
+                {feedback?.status === "correct" ? "✅" : "❌"}
+              </span>
+              <div className="tone-feedback-pills">
+                {session.currentCard.syllables.map((syllable, index) => {
+                  const selectedTone = toneSelections[index];
+                  const selectedLabel =
+                    selectedTone === -1
+                      ? plainPinyinFromNumericSyllable(syllable.pinyinNumber)
+                      : buildToneOptionPinyin(
+                          syllable.pinyinNumber,
+                          selectedTone as Tone,
+                        );
+
+                  return (
+                    <span
+                      className="pinyin tone-feedback-pill"
+                      data-tone={selectedTone === -1 ? 0 : selectedTone}
+                      key={`${session.currentCard.id}-selected-tone-${index}`}
+                    >
+                      {selectedLabel}
+                    </span>
+                  );
+                })}
+              </div>
+            </div>
+            {feedback?.status === "incorrect" ? (
+              <div className="tone-feedback-row" aria-label="Tonos correctos">
+                <span className="tone-feedback-icon">✓</span>
+                <div className="tone-feedback-pills">
+                  {session.currentCard.syllables.map((syllable, index) => (
+                    <span
+                      className="pinyin tone-feedback-pill"
+                      data-tone={syllable.tone}
+                      key={`${session.currentCard.id}-correct-tone-${index}`}
+                    >
+                      {syllable.pinyinDisplay}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            <button className="primary-button" onClick={onNext}>
+              Siguiente tarjeta
+            </button>
+          </div>
         ) : (
           <form
             className="answer-form"
@@ -180,7 +237,7 @@ export function SessionScreen({
           </form>
         )}
 
-        {feedback ? (
+        {feedback && !isToneMode ? (
           <div
             className={`feedback-panel feedback-${feedback.status}`}
             role="status"
@@ -191,9 +248,7 @@ export function SessionScreen({
             <span>
               {feedback.status === "correct"
                 ? `La tarjeta pasa a aprendidas.`
-                : mode === "tones"
-                  ? `Los tonos correctos son ${session.currentCard.syllables.map((syllable) => syllable.tone).join(" - ")} y la tarjeta vuelve a la pila.`
-                  : `La respuesta correcta es "${session.currentCard.spanish}" y la tarjeta vuelve a la pila.`}
+                : `La respuesta correcta es "${session.currentCard.spanish}" y la tarjeta vuelve a la pila.`}
             </span>
             {feedback.submittedAnswer ? (
               <span>Ingresaste: {feedback.submittedAnswer}</span>

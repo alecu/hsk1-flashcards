@@ -4,6 +4,8 @@ import type { Card } from "../types/cards";
 type TonePinyinCardProps = {
   card: Card;
   colorTones: boolean;
+  compactSpanish?: boolean;
+  hideSpanishLabel?: boolean;
   plainPinyin?: boolean;
   revealSpanish?: boolean;
   showPinyin: boolean;
@@ -12,6 +14,8 @@ type TonePinyinCardProps = {
 export function TonePinyinCard({
   card,
   colorTones,
+  compactSpanish = false,
+  hideSpanishLabel = false,
   plainPinyin = false,
   revealSpanish = false,
   showPinyin,
@@ -42,8 +46,10 @@ export function TonePinyinCard({
       </div>
 
       {revealSpanish ? (
-        <div className="spanish-side">
-          <span className="label">Castellano</span>
+        <div
+          className={`spanish-side ${compactSpanish ? "spanish-side-compact" : ""}`}
+        >
+          {hideSpanishLabel ? null : <span className="label">Castellano</span>}
           <strong>{card.spanish}</strong>
         </div>
       ) : null}

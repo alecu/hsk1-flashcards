@@ -95,4 +95,36 @@ describe("SessionScreen", () => {
     expect(topCardPinyin).toHaveTextContent("māo1");
     expect(topCardPinyin).not.toHaveClass("pinyin-plain");
   });
+
+  it("collapses tone controls after validating and keeps next card visible", () => {
+    render(
+      <SessionScreen
+        allCards={[catCard]}
+        draft=""
+        feedback={{ status: "incorrect", submittedAnswer: "mào4" }}
+        mode="tones"
+        onCancel={vi.fn()}
+        onChoice={vi.fn()}
+        onDraftChange={vi.fn()}
+        onNext={vi.fn()}
+        onSubmit={vi.fn()}
+        onToneSelectionChange={vi.fn()}
+        session={session}
+        settings={settings}
+        toneSelections={[4]}
+      />,
+    );
+
+    expect(
+      screen.queryByText("Elegi el tono correcto para cada silaba"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Validar tonos" }),
+    ).not.toBeInTheDocument();
+    expect(screen.queryByText("Castellano")).not.toBeInTheDocument();
+    expect(screen.queryByText("Correcto.")).not.toBeInTheDocument();
+    expect(screen.getByText("❌")).toBeInTheDocument();
+    expect(screen.getByText("✓")).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Siguiente tarjeta" })).toBeVisible();
+  });
 });

@@ -31,6 +31,8 @@ import type {
 } from "./types/cards";
 import type { Session } from "./lib/session";
 
+const HISTORY_SCREEN_KEY = "jinbai-screen";
+
 type ScreenState =
   | { name: "home" }
   | { name: "session"; session: Session; mode: StudyMode }
@@ -71,6 +73,31 @@ export default function App() {
       : vocabularyDecks[persistedState.settings.vocabularySet];
   const activeCards = activeDeck.cards;
 
+  const resetSessionUi = () => {
+    setDraft("");
+    setFeedback(null);
+    setPendingResult(null);
+    setToneSelections([]);
+    setSessionUpdates([]);
+  };
+
+  const exitToHome = () => {
+    if (typeof window === "undefined") {
+      resetSessionUi();
+      setScreenState({ name: "home" });
+      return;
+    }
+
+    if (window.history.state?.[HISTORY_SCREEN_KEY] !== "home") {
+      window.history.back();
+      return;
+    }
+
+    resetSessionUi();
+    setScreenState({ name: "home" });
+    window.history.replaceState({ [HISTORY_SCREEN_KEY]: "home" }, "");
+  };
+
   useEffect(() => {
     setPersistedState(loadState());
   }, []);
@@ -78,6 +105,26 @@ export default function App() {
   useEffect(() => {
     saveState(persistedState);
   }, [persistedState]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.history.replaceState({ [HISTORY_SCREEN_KEY]: "home" }, "");
+
+    const handlePopState = () => {
+      resetSessionUi();
+      setScreenState({ name: "home" });
+
+      if (window.history.state?.[HISTORY_SCREEN_KEY] !== "home") {
+        window.history.replaceState({ [HISTORY_SCREEN_KEY]: "home" }, "");
+      }
+    };
+
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
 
   const handleStart = (mode: StudyMode) => {
     const roundCards = pickRoundCards(
@@ -101,6 +148,16 @@ export default function App() {
     );
     setSessionUpdates([]);
     setScreenState({ name: "session", session, mode });
+
+    if (typeof window !== "undefined") {
+      const screenName = mode === "tones" ? "tones" : "session";
+
+      if (window.history.state?.[HISTORY_SCREEN_KEY] === "home") {
+        window.history.pushState({ [HISTORY_SCREEN_KEY]: screenName }, "");
+      } else {
+        window.history.replaceState({ [HISTORY_SCREEN_KEY]: screenName }, "");
+      }
+    }
   };
 
   const handleSettingsChange = (nextSettings: UserSettings) => {
@@ -196,6 +253,10 @@ export default function App() {
       }));
       setSessionUpdates([]);
       setScreenState({ name: "results", summary: result.summary });
+
+      if (typeof window !== "undefined") {
+        window.history.replaceState({ [HISTORY_SCREEN_KEY]: "results" }, "");
+      }
       return;
     }
 
@@ -217,14 +278,7 @@ export default function App() {
         draft={draft}
         feedback={feedback}
         mode={screenState.mode}
-        onCancel={() => {
-          setDraft("");
-          setFeedback(null);
-          setPendingResult(null);
-          setToneSelections([]);
-          setSessionUpdates([]);
-          setScreenState({ name: "home" });
-        }}
+        onCancel={exitToHome}
         onChoice={handleChoice}
         onDraftChange={setDraft}
         onNext={handleNext}
@@ -250,7 +304,7 @@ export default function App() {
       <ResultsScreen
         totalCards={activeCards.length}
         summary={screenState.summary}
-        onRestart={() => setScreenState({ name: "home" })}
+        onRestart={exitToHome}
       />
     );
   }

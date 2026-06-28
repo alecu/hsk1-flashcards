@@ -581,6 +581,16 @@ h3 {
   font-size: clamp(1.5rem, 5vw, 2rem);
 }
 
+.spanish-side-compact {
+  margin-top: 18px;
+  padding-top: 14px;
+}
+
+.spanish-side-compact strong {
+  font-size: clamp(1.05rem, 4vw, 1.3rem);
+  font-weight: 700;
+}
+
 .answer-form {
   display: grid;
   gap: 10px;
@@ -738,6 +748,35 @@ h3 {
   padding: 18px;
 }
 
+.tone-feedback-panel {
+  gap: 14px;
+  padding: 14px 0 0;
+}
+
+.tone-feedback-row {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 10px;
+}
+
+.tone-feedback-icon {
+  font-size: 1.15rem;
+  line-height: 1.4;
+}
+
+.tone-feedback-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tone-feedback-pill {
+  margin-top: 0;
+  min-width: 0;
+  font-size: 0.98rem;
+}
+
 .feedback-correct {
   border-color: rgba(21, 111, 77, 0.2);
 }
@@ -804,5 +843,21 @@ h3 {
 @media (max-width: 767px) {
   .custom-spreadsheet {
     min-width: 760px;
+  }
+
+  .tone-prompt {
+    padding: 14px;
+  }
+
+  .tone-button {
+    padding: 8px 4px;
+  }
+
+  .tone-button-label {
+    font-size: 0.86rem;
+  }
+
+  .tone-feedback-panel .primary-button {
+    width: 100%;
   }
 }
