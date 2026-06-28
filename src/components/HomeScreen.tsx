@@ -186,11 +186,18 @@ export function HomeScreen({
       <section className="hero-block">
         <div>
           <p className="eyebrow">HSK1 FlashCards</p>
-          <h1>Mandarin inicial, sin backend y lista para GitHub Pages.</h1>
+          <h1 className="hero-title-mark">
+            <span className="hero-title-syllable">
+              <span className="hero-title-hanzi">近</span>
+              <span className="hero-title-pinyin">Jìn</span>
+            </span>
+            <span className="hero-title-syllable">
+              <span className="hero-title-hanzi">百</span>
+              <span className="hero-title-pinyin">Bǎi</span>
+            </span>
+          </h1>
           <p className="hero-copy">
-            La app ahora permite elegir entre HSK 2.0, HSK 3.0 o una lista
-            propia con hanzi, pinyin y castellano, con el mismo motor de
-            rondas, pinyin por silaba y colores por tono.
+            Prácticas de Chino para alumnos de niveles iniciales
           </p>
         </div>
 

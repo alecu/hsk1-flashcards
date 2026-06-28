@@ -91,6 +91,31 @@ button {
   line-height: 1.7;
 }
 
+.hero-title-mark {
+  display: flex;
+  gap: 20px;
+  align-items: end;
+}
+
+.hero-title-syllable {
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+}
+
+.hero-title-hanzi {
+  font-size: clamp(4rem, 14vw, 7rem);
+  line-height: 0.9;
+}
+
+.hero-title-pinyin {
+  font-size: clamp(1rem, 3vw, 1.35rem);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: none;
+  color: rgba(32, 22, 19, 0.72);
+}
+
 .eyebrow {
   margin: 0 0 10px;
   font-size: 0.78rem;
