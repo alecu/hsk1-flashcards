@@ -2,6 +2,7 @@ import { render } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { SessionScreen } from "./SessionScreen";
+import { defaultCustomWordList } from "../data/customList";
 import type { Session } from "../lib/session";
 import type { Card, UserSettings } from "../types/cards";
 
@@ -27,6 +28,7 @@ const settings: UserSettings = {
   showPinyin: true,
   colorTones: true,
   vocabularySet: "hsk20",
+  customWordList: defaultCustomWordList,
 };
 
 const session: Session = {

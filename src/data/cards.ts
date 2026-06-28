@@ -1,5 +1,6 @@
 import hsk20WordsLevel1 from "@leonsilicon/hsk2.0/HSK2.0_words_level1.json";
 
+import { buildCustomDeck, defaultCustomWordList } from "./customList";
 import hsk30Source from "./hsk30Source.json";
 import { hsk1Glossary, type GlossaryEntry } from "./hsk1Glossary";
 import { hsk30Glossary } from "./hsk30Glossary";
@@ -129,4 +130,5 @@ export const vocabularyDecks = {
     subtitle: "300 palabras",
     cards: hsk30Cards,
   },
+  custom: buildCustomDeck(defaultCustomWordList),
 } as const;

@@ -1,3 +1,4 @@
+import { defaultCustomWordList } from "../data/customList";
 import type {
   CardProgress,
   PersistedState,
@@ -12,6 +13,7 @@ export const defaultSettings: UserSettings = {
   showPinyin: true,
   colorTones: true,
   vocabularySet: "hsk20",
+  customWordList: defaultCustomWordList,
 };
 
 export const defaultPersistedState: PersistedState = {

@@ -1,8 +1,9 @@
 export type Tone = 0 | 1 | 2 | 3 | 4;
-export type VocabularySet = "hsk20" | "hsk30";
+export type VocabularySet = "hsk20" | "hsk30" | "custom";
 
 export type CardSyllable = {
   hanzi: string;
+  prompt?: string;
   pinyinNumber: string;
   pinyinDisplay: string;
   tone: Tone;
@@ -34,6 +35,7 @@ export type UserSettings = {
   showPinyin: boolean;
   colorTones: boolean;
   vocabularySet: VocabularySet;
+  customWordList: string;
 };
 
 export type PersistedState = {

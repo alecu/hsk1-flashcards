@@ -24,7 +24,7 @@ export function TonePinyinCard({
             className="syllable-block"
             key={`${card.id}-${index}-${syllable.hanzi}-${syllable.pinyinNumber}`}
           >
-            <span className="hanzi-char">{syllable.hanzi}</span>
+            <span className="hanzi-char">{syllable.hanzi || syllable.prompt}</span>
             {showPinyin ? (
               <span
                 className={`pinyin ${plainPinyin ? "pinyin-plain" : ""}`}

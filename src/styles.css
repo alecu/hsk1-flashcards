@@ -42,7 +42,8 @@ body {
 }
 
 button,
-input {
+input,
+textarea {
   font: inherit;
 }
 
@@ -163,6 +164,54 @@ h3 {
   display: grid;
   gap: 12px;
   margin-top: 20px;
+}
+
+.custom-list-panel {
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.custom-list-field {
+  display: grid;
+  gap: 8px;
+}
+
+.custom-list-field small {
+  color: rgba(32, 22, 19, 0.68);
+  line-height: 1.5;
+}
+
+.custom-list-field textarea {
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid rgba(98, 68, 46, 0.16);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.74);
+  padding: 16px 18px;
+  line-height: 1.45;
+  resize: vertical;
+}
+
+.custom-list-errors,
+.custom-list-hint {
+  padding: 16px 18px;
+  border-radius: 20px;
+  border: 1px solid rgba(98, 68, 46, 0.12);
+  background: rgba(255, 255, 255, 0.52);
+}
+
+.custom-list-errors {
+  border-color: rgba(163, 61, 40, 0.16);
+}
+
+.custom-list-errors strong {
+  color: var(--danger);
+}
+
+.custom-list-errors p,
+.custom-list-hint p {
+  margin-bottom: 0;
 }
 
 .deck-option {
@@ -328,6 +377,7 @@ h3 {
 
 .syllable-block {
   min-width: 56px;
+  max-width: 9rem;
   text-align: center;
 }
 
@@ -335,7 +385,8 @@ h3 {
   display: block;
   font-size: clamp(2.5rem, 10vw, 4.3rem);
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.05;
+  word-break: break-word;
 }
 
 .pinyin {
@@ -604,7 +655,7 @@ h3 {
   }
 
   .deck-switcher {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .mode-grid {

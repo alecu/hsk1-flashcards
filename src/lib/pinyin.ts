@@ -307,6 +307,64 @@ export function plainPinyinFromNumericSyllable(numericSyllable: string) {
   return numericSyllable.replace(/[0-5]$/, "");
 }
 
+export function splitNumericPinyinSyllables(raw: string) {
+  const cleaned = raw
+    .toLowerCase()
+    .replace(/u:/g, "v")
+    .replace(/ü/g, "v")
+    .replace(/[’']/g, "")
+    .replace(/\s+/g, "");
+
+  if (!cleaned) {
+    return [];
+  }
+
+  const memo = new Map<number, string[] | null>();
+
+  const dfs = (position: number): string[] | null => {
+    if (memo.has(position)) {
+      return memo.get(position) ?? null;
+    }
+
+    if (position === cleaned.length) {
+      return [];
+    }
+
+    for (let end = cleaned.length; end > position; end -= 1) {
+      const candidate = cleaned.slice(position, end);
+
+      if (!/[0-5]$/.test(candidate)) {
+        continue;
+      }
+
+      const plain = plainPinyinFromNumericSyllable(candidate);
+
+      if (!isValidPinyinSyllable(plain)) {
+        continue;
+      }
+
+      const remainder = dfs(end);
+
+      if (remainder) {
+        const result = [candidate, ...remainder];
+        memo.set(position, result);
+        return result;
+      }
+    }
+
+    memo.set(position, null);
+    return null;
+  };
+
+  const segmented = dfs(0);
+
+  if (!segmented) {
+    throw new Error(`No se pudo segmentar el pinyin numérico: ${raw}`);
+  }
+
+  return segmented;
+}
+
 export function buildToneOptionPinyin(
   numericSyllable: string,
   tone: Tone,

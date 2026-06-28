@@ -9,9 +9,11 @@ type HomeScreenProps = {
   activeVocabularySet: VocabularySet;
   totalCards: number;
   mistakeCards: number;
+  customDeckErrors: string[];
   progress: Record<string, CardProgress>;
   settings: UserSettings;
   onVocabularySetChange: (value: VocabularySet) => void;
+  onCustomWordListChange: (value: string) => void;
   onRoundSizeChange: (value: number) => void;
   onToggleSetting: (key: "showPinyin" | "colorTones") => void;
   onStart: (mode: StudyMode) => void;
@@ -31,6 +33,11 @@ const vocabularyOptions: Array<{
     id: "hsk30",
     title: "HSK 3.0",
     description: "Nueva lista con 300 palabras base.",
+  },
+  {
+    id: "custom",
+    title: "Lista personal",
+    description: "Cards creadas desde una lista editable de pinyin y castellano.",
   },
 ];
 
@@ -69,9 +76,11 @@ export function HomeScreen({
   activeVocabularySet,
   totalCards,
   mistakeCards,
+  customDeckErrors,
   progress,
   settings,
   onVocabularySetChange,
+  onCustomWordListChange,
   onRoundSizeChange,
   onToggleSetting,
   onStart,
@@ -87,16 +96,20 @@ export function HomeScreen({
           <p className="eyebrow">HSK1 FlashCards</p>
           <h1>Mandarin inicial, sin backend y lista para GitHub Pages.</h1>
           <p className="hero-copy">
-            La app ahora permite elegir entre el vocabulario HSK 2.0 de 150
-            palabras y el HSK 3.0 de 300 palabras, con el mismo motor de
-            rondas, pinyin por silaba y colores por tono.
+            La app ahora permite elegir entre HSK 2.0, HSK 3.0 o una lista
+            propia en pinyin, con el mismo motor de rondas, pinyin por silaba
+            y colores por tono.
           </p>
         </div>
 
         <div className="stats-grid">
           <div className="stat-card">
             <span className="stat-label">
-              {activeVocabularySet === "hsk20" ? "Tarjetas HSK 2.0" : "Tarjetas HSK 3.0"}
+              {activeVocabularySet === "hsk20"
+                ? "Tarjetas HSK 2.0"
+                : activeVocabularySet === "hsk30"
+                  ? "Tarjetas HSK 3.0"
+                  : "Tarjetas personalizadas"}
             </span>
             <strong>{totalCards}</strong>
           </div>
@@ -132,6 +145,36 @@ export function HomeScreen({
             </button>
           ))}
         </div>
+
+        {activeVocabularySet === "custom" ? (
+          <div className="custom-list-panel">
+            <label className="custom-list-field" htmlFor="custom-word-list">
+              <span>Lista editable</span>
+              <small>
+                Formato: pinyin numérico, tabulador, traducción. El lado chino
+                se mostrará en pinyin porque esta lista no trae hanzi.
+              </small>
+              <textarea
+                id="custom-word-list"
+                value={settings.customWordList}
+                onChange={(event) => onCustomWordListChange(event.target.value)}
+                spellCheck={false}
+              />
+            </label>
+
+            {customDeckErrors.length > 0 ? (
+              <div className="custom-list-errors" role="status">
+                <strong>Hay líneas que no se pudieron cargar.</strong>
+                <p>{customDeckErrors.slice(0, 4).join(" ")}</p>
+              </div>
+            ) : (
+              <div className="custom-list-hint">
+                <strong>Lista cargada.</strong>
+                <p>{totalCards} tarjetas disponibles desde tu vocabulario propio.</p>
+              </div>
+            )}
+          </div>
+        ) : null}
       </section>
 
       <section className="control-panel">
@@ -187,9 +230,14 @@ export function HomeScreen({
             <button
               className="primary-button"
               onClick={() => onStart(mode.id)}
-              disabled={mode.id === "review" && mistakeCards === 0}
+              disabled={
+                totalCards === 0 ||
+                (mode.id === "review" && mistakeCards === 0)
+              }
             >
-              {mode.id === "review" && mistakeCards === 0
+              {totalCards === 0
+                ? "Sin tarjetas cargadas"
+                : mode.id === "review" && mistakeCards === 0
                 ? "Sin errores guardados"
                 : "Empezar ronda"}
             </button>

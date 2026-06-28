@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { HomeScreen } from "./components/HomeScreen";
 import { ResultsScreen } from "./components/ResultsScreen";
 import { SessionScreen } from "./components/SessionScreen";
 import { vocabularyDecks } from "./data/cards";
+import { buildCustomDeck } from "./data/customList";
 import {
   areCorrectToneSelections,
   createSession,
@@ -52,7 +53,14 @@ export default function App() {
     Array<{ cardId: string; result: "correct" | "incorrect" }>
   >([]);
 
-  const activeDeck = vocabularyDecks[persistedState.settings.vocabularySet];
+  const customDeck = useMemo(
+    () => buildCustomDeck(persistedState.settings.customWordList),
+    [persistedState.settings.customWordList],
+  );
+  const activeDeck =
+    persistedState.settings.vocabularySet === "custom"
+      ? customDeck
+      : vocabularyDecks[persistedState.settings.vocabularySet];
   const activeCards = activeDeck.cards;
 
   useEffect(() => {
@@ -244,12 +252,19 @@ export default function App() {
       activeVocabularySet={persistedState.settings.vocabularySet}
       totalCards={activeCards.length}
       mistakeCards={mistakeCards}
+      customDeckErrors={customDeck.errors}
       progress={persistedState.progress}
       settings={persistedState.settings}
       onVocabularySetChange={(value) =>
         handleSettingsChange({
           ...persistedState.settings,
           vocabularySet: value,
+        })
+      }
+      onCustomWordListChange={(value) =>
+        handleSettingsChange({
+          ...persistedState.settings,
+          customWordList: value,
         })
       }
       onRoundSizeChange={(value) =>

@@ -7,6 +7,7 @@ import {
   getToneFromPinyin,
   numericPinyinFromDisplaySyllable,
   segmentDisplayPinyin,
+  splitNumericPinyinSyllables,
 } from "./pinyin";
 
 describe("pinyin helpers", () => {
@@ -50,5 +51,15 @@ describe("pinyin helpers", () => {
     expect(buildToneOptionPinyin("xue2", 3)).toBe("xuě3");
     expect(buildToneOptionPinyin("xue2", 4)).toBe("xuè4");
     expect(buildToneOptionPinyin("xue2", 0)).toBe("xue0");
+  });
+
+  it("segments numeric pinyin strings for custom lists", () => {
+    expect(splitNumericPinyinSyllables("fei1ji1")).toEqual(["fei1", "ji1"]);
+    expect(splitNumericPinyinSyllables("zhen1 de0")).toEqual(["zhen1", "de0"]);
+    expect(splitNumericPinyinSyllables("tai4gui4le0")).toEqual([
+      "tai4",
+      "gui4",
+      "le0",
+    ]);
   });
 });

@@ -118,7 +118,7 @@ export function SessionScreen({
             <div className="tones-grid">
               {session.currentCard.syllables.map((syllable, index) => (
                 <div className="tone-prompt" key={`${session.currentCard.id}-tone-${index}`}>
-                  <strong>{syllable.hanzi}</strong>
+                  <strong>{syllable.hanzi || syllable.prompt}</strong>
                   <span>{syllable.pinyinNumber.replace(/[0-5]$/, "")}</span>
                   <div className="tone-options">
                     {toneOptions.map((tone) => (
