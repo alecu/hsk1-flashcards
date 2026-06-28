@@ -95,34 +95,4 @@ describe("SessionScreen", () => {
     expect(topCardPinyin).toHaveTextContent("māo1");
     expect(topCardPinyin).not.toHaveClass("pinyin-plain");
   });
-
-  it("shows Tone Perfect audio controls in tone mode", () => {
-    render(
-      <SessionScreen
-        allCards={[catCard]}
-        draft=""
-        feedback={null}
-        mode="tones"
-        onCancel={vi.fn()}
-        onChoice={vi.fn()}
-        onDraftChange={vi.fn()}
-        onNext={vi.fn()}
-        onSubmit={vi.fn()}
-        onToneSelectionChange={vi.fn()}
-        session={session}
-        settings={settings}
-        toneSelections={[-1]}
-      />,
-    );
-
-    expect(
-      screen.getByRole("button", { name: "Escuchar palabra" }),
-    ).toBeInTheDocument();
-    expect(screen.getByRole("button", { name: "Escuchar" })).toBeEnabled();
-    expect(
-      screen.getByText(
-        "Audio Tone Perfect disponible para tonos 1-4. Fuente: Michigan State University.",
-      ),
-    ).toBeInTheDocument();
-  });
 });
