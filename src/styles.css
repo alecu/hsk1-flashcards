@@ -93,8 +93,16 @@ button {
 
 .hero-title-mark {
   display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  flex-wrap: nowrap;
+}
+
+.hero-title-main {
+  display: flex;
   gap: 20px;
-  align-items: end;
+  align-items: flex-start;
+  min-width: 0;
 }
 
 .hero-title-syllable {
@@ -116,8 +124,11 @@ button {
 }
 
 .hero-title-note {
-  padding-bottom: 0.4rem;
-  font-size: clamp(1.15rem, 3.5vw, 1.6rem);
+  padding-top: 0.55rem;
+  flex: 0 0 auto;
+  white-space: nowrap;
+  line-height: 1;
+  font-size: clamp(1.45rem, 5vw, 2.1rem);
   font-weight: 700;
   color: rgba(32, 22, 19, 0.72);
 }

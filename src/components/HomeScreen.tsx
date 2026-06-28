@@ -187,16 +187,18 @@ export function HomeScreen({
         <div>
           <p className="eyebrow">HSK1 FlashCards</p>
           <h1 className="hero-title-mark">
-            <span className="hero-title-syllable">
-              <span className="hero-title-hanzi">近</span>
-              <span className="pinyin hero-title-pinyin" data-tone="4">
-                jìn4
+            <span className="hero-title-main">
+              <span className="hero-title-syllable">
+                <span className="hero-title-hanzi">近</span>
+                <span className="pinyin hero-title-pinyin" data-tone="4">
+                  jìn4
+                </span>
               </span>
-            </span>
-            <span className="hero-title-syllable">
-              <span className="hero-title-hanzi">百</span>
-              <span className="pinyin hero-title-pinyin" data-tone="3">
-                bǎi3
+              <span className="hero-title-syllable">
+                <span className="hero-title-hanzi">百</span>
+                <span className="pinyin hero-title-pinyin" data-tone="3">
+                  bǎi3
+                </span>
               </span>
             </span>
             <span className="hero-title-note">(99.9%)</span>
