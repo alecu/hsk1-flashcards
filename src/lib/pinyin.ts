@@ -4,6 +4,7 @@ import type { Tone } from "../types/cards";
 
 const manualPinyin: Record<string, string[]> = {
   "一点儿": ["yi4", "dian3", "er5"],
+  "了": ["le0"],
   "哪儿": ["na3", "er5"],
   "谁": ["shei2"],
 };

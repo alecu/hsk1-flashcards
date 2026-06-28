@@ -43,6 +43,20 @@ describe("hsk1 dataset", () => {
     ]);
   });
 
+  it("keeps 了 as neutral tone le0 in HSK 2.0", () => {
+    const particleCard = hsk20Cards.find((card) => card.hanzi === "了");
+
+    expect(particleCard).toBeDefined();
+    expect(particleCard?.syllables).toEqual([
+      {
+        hanzi: "了",
+        pinyinNumber: "le0",
+        pinyinDisplay: "le0",
+        tone: 0,
+      },
+    ]);
+  });
+
   it("exposes deck metadata for UI selection", () => {
     expect(vocabularyDecks.hsk20.subtitle).toBe("150 palabras");
     expect(vocabularyDecks.hsk30.subtitle).toBe("300 palabras");
