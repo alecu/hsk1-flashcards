@@ -42,8 +42,7 @@ body {
 }
 
 button,
-input,
-textarea {
+input {
   font: inherit;
 }
 
@@ -172,25 +171,100 @@ h3 {
   margin-top: 18px;
 }
 
+.custom-list-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.custom-list-header small {
+  display: block;
+  margin-top: 6px;
+  max-width: 64ch;
+  color: rgba(32, 22, 19, 0.68);
+  line-height: 1.5;
+}
+
+.custom-table-shell {
+  overflow-x: auto;
+}
+
+.custom-table {
+  display: grid;
+  gap: 10px;
+  min-width: 760px;
+}
+
+.custom-table-head,
+.custom-table-body {
+  display: grid;
+  gap: 10px;
+}
+
+.custom-table-row {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1.2fr auto;
+  gap: 10px;
+  align-items: start;
+  padding: 12px;
+  border-radius: 22px;
+  border: 1px solid rgba(98, 68, 46, 0.12);
+  background: rgba(255, 255, 255, 0.56);
+}
+
+.custom-table-row-head {
+  padding: 0 12px;
+  border: 0;
+  background: transparent;
+}
+
+.custom-table-row-head span {
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(32, 22, 19, 0.62);
+}
+
 .custom-list-field {
   display: grid;
   gap: 8px;
 }
 
+.custom-cell {
+  display: grid;
+  gap: 6px;
+}
+
+.custom-cell input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid rgba(98, 68, 46, 0.16);
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.82);
+  padding: 12px 14px;
+}
+
+.custom-cell-label {
+  display: none;
+  font-size: 0.76rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(32, 22, 19, 0.56);
+}
+
+.custom-row-actions {
+  display: flex;
+  align-items: center;
+  min-height: 46px;
+}
+
 .custom-list-field small {
   color: rgba(32, 22, 19, 0.68);
   line-height: 1.5;
-}
-
-.custom-list-field textarea {
-  width: 100%;
-  min-height: 320px;
-  border: 1px solid rgba(98, 68, 46, 0.16);
-  border-radius: 20px;
-  background: rgba(255, 255, 255, 0.74);
-  padding: 16px 18px;
-  line-height: 1.45;
-  resize: vertical;
 }
 
 .custom-list-errors,
@@ -672,5 +746,27 @@ h3 {
 
   .tones-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 767px) {
+  .custom-table {
+    min-width: 100%;
+  }
+
+  .custom-table-row {
+    grid-template-columns: 1fr;
+  }
+
+  .custom-table-row-head {
+    display: none;
+  }
+
+  .custom-cell-label {
+    display: block;
+  }
+
+  .custom-row-actions {
+    min-height: 0;
   }
 }

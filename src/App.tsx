@@ -4,7 +4,11 @@ import { HomeScreen } from "./components/HomeScreen";
 import { ResultsScreen } from "./components/ResultsScreen";
 import { SessionScreen } from "./components/SessionScreen";
 import { vocabularyDecks } from "./data/cards";
-import { buildCustomDeck } from "./data/customList";
+import {
+  buildCustomDeck,
+  parseCustomWordRows,
+  serializeCustomWordRows,
+} from "./data/customList";
 import {
   areCorrectToneSelections,
   createSession,
@@ -55,6 +59,10 @@ export default function App() {
 
   const customDeck = useMemo(
     () => buildCustomDeck(persistedState.settings.customWordList),
+    [persistedState.settings.customWordList],
+  );
+  const customRows = useMemo(
+    () => parseCustomWordRows(persistedState.settings.customWordList),
     [persistedState.settings.customWordList],
   );
   const activeDeck =
@@ -253,6 +261,7 @@ export default function App() {
       totalCards={activeCards.length}
       mistakeCards={mistakeCards}
       customDeckErrors={customDeck.errors}
+      customRows={customRows}
       progress={persistedState.progress}
       settings={persistedState.settings}
       onVocabularySetChange={(value) =>
@@ -261,10 +270,39 @@ export default function App() {
           vocabularySet: value,
         })
       }
-      onCustomWordListChange={(value) =>
+      onCustomRowChange={(rowIndex, key, value) => {
+        const nextRows = [...customRows];
+        const currentRow = nextRows[rowIndex] ?? {
+          hanzi: "",
+          pinyin: "",
+          spanish: "",
+        };
+
+        nextRows[rowIndex] = {
+          ...currentRow,
+          [key]: value,
+        };
+
         handleSettingsChange({
           ...persistedState.settings,
-          customWordList: value,
+          customWordList: serializeCustomWordRows(nextRows),
+        });
+      }}
+      onCustomRowDelete={(rowIndex) => {
+        const nextRows = customRows.filter((_, index) => index !== rowIndex);
+
+        handleSettingsChange({
+          ...persistedState.settings,
+          customWordList: serializeCustomWordRows(nextRows),
+        });
+      }}
+      onCustomRowAdd={() =>
+        handleSettingsChange({
+          ...persistedState.settings,
+          customWordList: serializeCustomWordRows([
+            ...customRows,
+            { hanzi: "", pinyin: "", spanish: "" },
+          ]),
         })
       }
       onRoundSizeChange={(value) =>

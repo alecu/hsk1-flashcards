@@ -1,3 +1,4 @@
+import type { CustomWordRow } from "../data/customList";
 import type {
   CardProgress,
   StudyMode,
@@ -10,10 +11,17 @@ type HomeScreenProps = {
   totalCards: number;
   mistakeCards: number;
   customDeckErrors: string[];
+  customRows: CustomWordRow[];
   progress: Record<string, CardProgress>;
   settings: UserSettings;
   onVocabularySetChange: (value: VocabularySet) => void;
-  onCustomWordListChange: (value: string) => void;
+  onCustomRowChange: (
+    rowIndex: number,
+    key: "hanzi" | "pinyin" | "spanish",
+    value: string,
+  ) => void;
+  onCustomRowDelete: (rowIndex: number) => void;
+  onCustomRowAdd: () => void;
   onRoundSizeChange: (value: number) => void;
   onToggleSetting: (key: "showPinyin" | "colorTones") => void;
   onStart: (mode: StudyMode) => void;
@@ -77,10 +85,13 @@ export function HomeScreen({
   totalCards,
   mistakeCards,
   customDeckErrors,
+  customRows,
   progress,
   settings,
   onVocabularySetChange,
-  onCustomWordListChange,
+  onCustomRowChange,
+  onCustomRowDelete,
+  onCustomRowAdd,
   onRoundSizeChange,
   onToggleSetting,
   onStart,
@@ -97,8 +108,8 @@ export function HomeScreen({
           <h1>Mandarin inicial, sin backend y lista para GitHub Pages.</h1>
           <p className="hero-copy">
             La app ahora permite elegir entre HSK 2.0, HSK 3.0 o una lista
-            propia en pinyin, con el mismo motor de rondas, pinyin por silaba
-            y colores por tono.
+            propia con hanzi, pinyin y castellano, con el mismo motor de
+            rondas, pinyin por silaba y colores por tono.
           </p>
         </div>
 
@@ -148,19 +159,93 @@ export function HomeScreen({
 
         {activeVocabularySet === "custom" ? (
           <div className="custom-list-panel">
-            <label className="custom-list-field" htmlFor="custom-word-list">
-              <span>Lista editable</span>
+            <div className="custom-list-header">
+              <div>
+                <span>Tabla editable</span>
+                <small>
+                  Cada fila define una tarjeta. Las variantes se pueden escribir
+                  con `/`, por ejemplo `块 / 元` o `小姐 / 女士`.
+                </small>
+              </div>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={onCustomRowAdd}
+              >
+                Agregar fila
+              </button>
+            </div>
+
+            <div className="custom-table-shell">
+              <div className="custom-table" role="table" aria-label="Lista personal">
+                <div className="custom-table-head" role="rowgroup">
+                  <div className="custom-table-row custom-table-row-head" role="row">
+                    <span role="columnheader">Hanzi</span>
+                    <span role="columnheader">Pinyin</span>
+                    <span role="columnheader">Castellano</span>
+                    <span role="columnheader">Acción</span>
+                  </div>
+                </div>
+
+                <div className="custom-table-body" role="rowgroup">
+                  {customRows.map((row, index) => (
+                    <div className="custom-table-row" role="row" key={`custom-row-${index}`}>
+                      <label className="custom-cell">
+                        <span className="custom-cell-label">Hanzi</span>
+                        <input
+                          value={row.hanzi}
+                          onChange={(event) =>
+                            onCustomRowChange(index, "hanzi", event.target.value)
+                          }
+                          placeholder="例: 飞机"
+                        />
+                      </label>
+
+                      <label className="custom-cell">
+                        <span className="custom-cell-label">Pinyin</span>
+                        <input
+                          value={row.pinyin}
+                          onChange={(event) =>
+                            onCustomRowChange(index, "pinyin", event.target.value)
+                          }
+                          placeholder="fei1ji1"
+                          spellCheck={false}
+                        />
+                      </label>
+
+                      <label className="custom-cell">
+                        <span className="custom-cell-label">Castellano</span>
+                        <input
+                          value={row.spanish}
+                          onChange={(event) =>
+                            onCustomRowChange(index, "spanish", event.target.value)
+                          }
+                          placeholder="avión"
+                        />
+                      </label>
+
+                      <div className="custom-row-actions">
+                        <button
+                          type="button"
+                          className="ghost-button"
+                          onClick={() => onCustomRowDelete(index)}
+                          disabled={customRows.length === 1}
+                        >
+                          Borrar
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="custom-list-field">
               <small>
-                Formato: pinyin numérico, tabulador, traducción. El lado chino
-                se mostrará en pinyin porque esta lista no trae hanzi.
+                El pinyin usa tonos numéricos. Si dejás el hanzi vacío, la app
+                usará el pinyin como prompt visual para esa tarjeta.
               </small>
-              <textarea
-                id="custom-word-list"
-                value={settings.customWordList}
-                onChange={(event) => onCustomWordListChange(event.target.value)}
-                spellCheck={false}
-              />
-            </label>
+            </div>
 
             {customDeckErrors.length > 0 ? (
               <div className="custom-list-errors" role="status">
