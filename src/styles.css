@@ -14,10 +14,10 @@
   --accent: #bf5a2a;
   --accent-dark: #7b2f10;
   --tone-0: #7e746c;
-  --tone-1: #cf3f2f;
-  --tone-2: #e98b21;
-  --tone-3: #2a9d5b;
-  --tone-4: #2563c9;
+  --tone-1: #dd7a20;
+  --tone-2: #2f9d58;
+  --tone-3: #55b9d9;
+  --tone-4: #7d243a;
   --success: #156f4d;
   --danger: #a33d28;
 }
@@ -519,6 +519,7 @@ h3 {
 }
 
 .pinyin[data-tone="0"] {
+  color: var(--ink);
   background: var(--tone-0);
 }
 
@@ -531,6 +532,7 @@ h3 {
 }
 
 .pinyin[data-tone="3"] {
+  color: #123e4f;
   background: var(--tone-3);
 }
 
@@ -587,6 +589,16 @@ h3 {
   gap: 14px;
 }
 
+.tones-toolbar {
+  display: grid;
+  gap: 8px;
+}
+
+.tones-toolbar small,
+.tones-audio-status {
+  color: rgba(32, 22, 19, 0.72);
+}
+
 .tones-form label {
   font-weight: 600;
 }
@@ -607,6 +619,13 @@ h3 {
 
 .tone-prompt strong {
   font-size: 1.4rem;
+}
+
+.tone-prompt-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
 }
 
 .tone-prompt span {
@@ -657,53 +676,59 @@ h3 {
 }
 
 .tone-button-tone-1 {
-  color: #8f2419;
-  background: rgba(207, 63, 47, 0.16);
+  color: #9a4a00;
+  background: rgba(221, 122, 32, 0.16);
 }
 
 .tone-button-tone-2 {
-  color: #a55a0f;
-  background: rgba(233, 139, 33, 0.16);
+  color: #1b6d3a;
+  background: rgba(47, 157, 88, 0.16);
 }
 
 .tone-button-tone-3 {
-  color: #186a3c;
-  background: rgba(42, 157, 91, 0.16);
+  color: #1d7f9d;
+  background: rgba(85, 185, 217, 0.18);
 }
 
 .tone-button-tone-4 {
-  color: #1f4f9c;
-  background: rgba(37, 99, 201, 0.16);
+  color: #672033;
+  background: rgba(125, 36, 58, 0.16);
 }
 
 .tone-button-tone-0.tone-button-active {
-  color: #fff8f1;
+  color: var(--ink);
   border-color: rgba(126, 116, 108, 0.28);
   background: var(--tone-0);
 }
 
 .tone-button-tone-1.tone-button-active {
   color: #fff8f1;
-  border-color: rgba(207, 63, 47, 0.28);
+  border-color: rgba(221, 122, 32, 0.28);
   background: var(--tone-1);
 }
 
 .tone-button-tone-2.tone-button-active {
   color: #fff8f1;
-  border-color: rgba(233, 139, 33, 0.28);
+  border-color: rgba(47, 157, 88, 0.28);
   background: var(--tone-2);
 }
 
 .tone-button-tone-3.tone-button-active {
-  color: #fff8f1;
-  border-color: rgba(42, 157, 91, 0.28);
+  color: #123e4f;
+  border-color: rgba(85, 185, 217, 0.28);
   background: var(--tone-3);
 }
 
 .tone-button-tone-4.tone-button-active {
   color: #fff8f1;
-  border-color: rgba(37, 99, 201, 0.28);
+  border-color: rgba(125, 36, 58, 0.28);
   background: var(--tone-4);
+}
+
+.tone-audio-button {
+  padding: 10px 12px;
+  border-radius: 12px;
+  white-space: nowrap;
 }
 
 .feedback-panel {

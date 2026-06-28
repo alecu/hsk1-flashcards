@@ -1,4 +1,11 @@
+import { useState } from "react";
+
 import { buildToneOptionPinyin } from "../lib/pinyin";
+import {
+  hasTonePerfectAudio,
+  playTonePerfectSequence,
+  playTonePerfectSyllable,
+} from "../lib/tonePerfect";
 import { TonePinyinCard } from "./TonePinyinCard";
 import { buildMultipleChoiceOptions } from "../lib/session";
 import type { Card, StudyMode, Tone, UserSettings } from "../types/cards";
@@ -51,6 +58,7 @@ export function SessionScreen({
   toneSelections,
   onCancel,
 }: SessionScreenProps) {
+  const [audioStatus, setAudioStatus] = useState<string | null>(null);
   const options =
     mode === "choice"
       ? buildMultipleChoiceOptions(session.currentCard, allCards)
@@ -115,10 +123,72 @@ export function SessionScreen({
             }}
           >
             <label>Elegi el tono correcto para cada silaba</label>
+            <div className="tones-toolbar">
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={async () => {
+                  try {
+                    const result = await playTonePerfectSequence(
+                      session.currentCard.syllables.map(
+                        (syllable) => syllable.pinyinNumber,
+                      ),
+                    );
+
+                    if (result.played === 0) {
+                      setAudioStatus(
+                        "Tone Perfect no tiene audio para tonos neutros.",
+                      );
+                      return;
+                    }
+
+                    setAudioStatus(
+                      result.skipped > 0
+                        ? "Se reprodujeron los tonos disponibles. Los tonos neutros quedaron sin audio."
+                        : "Audio reproducido desde Tone Perfect.",
+                    );
+                  } catch {
+                    setAudioStatus("No se pudo reproducir el audio Tone Perfect.");
+                  }
+                }}
+              >
+                Escuchar palabra
+              </button>
+              <small>
+                Audio Tone Perfect disponible para tonos 1-4. Fuente: Michigan
+                State University.
+              </small>
+            </div>
             <div className="tones-grid">
               {session.currentCard.syllables.map((syllable, index) => (
                 <div className="tone-prompt" key={`${session.currentCard.id}-tone-${index}`}>
-                  <strong>{syllable.hanzi || syllable.prompt}</strong>
+                  <div className="tone-prompt-head">
+                    <strong>{syllable.hanzi || syllable.prompt}</strong>
+                    <button
+                      type="button"
+                      className="ghost-button tone-audio-button"
+                      disabled={!hasTonePerfectAudio(syllable.pinyinNumber)}
+                      onClick={async () => {
+                        try {
+                          const played = await playTonePerfectSyllable(
+                            syllable.pinyinNumber,
+                          );
+
+                          setAudioStatus(
+                            played
+                              ? `Audio reproducido para ${syllable.pinyinDisplay}.`
+                              : "Tone Perfect no tiene audio para ese tono.",
+                          );
+                        } catch {
+                          setAudioStatus(
+                            "No se pudo reproducir el audio Tone Perfect.",
+                          );
+                        }
+                      }}
+                    >
+                      Escuchar
+                    </button>
+                  </div>
                   <span>{syllable.pinyinNumber.replace(/[0-5]$/, "")}</span>
                   <div className="tone-options">
                     {toneOptions.map((tone) => (
@@ -139,6 +209,11 @@ export function SessionScreen({
                 </div>
               ))}
             </div>
+            {audioStatus ? (
+              <div className="tones-audio-status" role="status">
+                {audioStatus}
+              </div>
+            ) : null}
             <button
               type="submit"
               className="primary-button"
