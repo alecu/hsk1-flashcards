@@ -652,19 +652,16 @@ h3 {
 
 .tone-prompt {
   display: grid;
-  gap: 8px;
-  padding: 16px;
+  gap: 10px;
+  padding: 14px;
   border-radius: 20px;
   border: 1px solid rgba(98, 68, 46, 0.12);
   background: rgba(255, 255, 255, 0.52);
 }
 
 .tone-prompt strong {
-  font-size: 1.4rem;
-}
-
-.tone-prompt span {
-  color: rgba(32, 22, 19, 0.72);
+  font-size: 1.7rem;
+  line-height: 1;
 }
 
 .tone-options {
@@ -676,10 +673,10 @@ h3 {
 .tone-button {
   appearance: none;
   display: grid;
-  gap: 4px;
+  gap: 0;
   border: 1px solid rgba(98, 68, 46, 0.14);
   border-radius: 14px;
-  padding: 10px 6px;
+  padding: 11px 6px;
   background: rgba(255, 255, 255, 0.8);
   text-align: center;
   transition:
@@ -689,15 +686,10 @@ h3 {
     border-color 180ms ease;
 }
 
-.tone-button-tone {
-  font-size: 0.78rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-}
-
 .tone-button-label {
-  font-size: 0.96rem;
+  font-size: 1rem;
   font-weight: 700;
+  line-height: 1.1;
 }
 
 .tone-button-active {

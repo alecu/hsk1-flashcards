@@ -136,7 +136,6 @@ export function SessionScreen({
               {session.currentCard.syllables.map((syllable, index) => (
                 <div className="tone-prompt" key={`${session.currentCard.id}-tone-${index}`}>
                   <strong>{syllable.hanzi || syllable.prompt}</strong>
-                  <span>{syllable.pinyinNumber.replace(/[0-5]$/, "")}</span>
                   <div className="tone-options">
                     {toneOptions.map((tone) => (
                       <button
@@ -146,7 +145,6 @@ export function SessionScreen({
                         onClick={() => onToneSelectionChange(index, tone)}
                         disabled={feedback !== null}
                       >
-                        <span className="tone-button-tone">{tone}</span>
                         <span className="tone-button-label">
                           {buildToneOptionPinyin(syllable.pinyinNumber, tone)}
                         </span>

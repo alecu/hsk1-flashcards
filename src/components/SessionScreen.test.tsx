@@ -84,11 +84,18 @@ describe("SessionScreen", () => {
     );
 
     const topCardPinyin = container.querySelector(".study-card .pinyin");
+    const tonePrompt = container.querySelector(".tone-prompt");
+    const tonePromptPlainPinyin = container.querySelector(".tone-prompt > span");
+    const toneButtons = container.querySelectorAll(".tone-button");
 
     expect(topCardPinyin).not.toBeNull();
     expect(topCardPinyin).toHaveTextContent("mao");
     expect(topCardPinyin).not.toHaveTextContent("māo1");
     expect(topCardPinyin).toHaveClass("pinyin-plain");
+    expect(tonePrompt).toHaveTextContent("猫");
+    expect(tonePromptPlainPinyin).toBeNull();
+    expect(toneButtons[0]).toHaveTextContent("māo1");
+    expect(toneButtons[0]).not.toHaveTextContent("1māo1");
   });
 
   it("reveals colored pinyin with tone after validating in tone mode", () => {
