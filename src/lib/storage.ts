@@ -1,4 +1,5 @@
 import { defaultCustomWordList } from "../data/customList";
+import { normalizeCardProgress, RECENT_RESULTS_LIMIT } from "./progress";
 import type {
   CardProgress,
   PersistedState,
@@ -40,7 +41,12 @@ export function loadState() {
         ...defaultSettings,
         ...parsed.settings,
       },
-      progress: parsed.progress ?? {},
+      progress: Object.fromEntries(
+        Object.entries(parsed.progress ?? {}).map(([cardId, progress]) => [
+          cardId,
+          normalizeCardProgress(progress),
+        ]),
+      ),
       recentSessions: parsed.recentSessions ?? [],
     };
   } catch {
@@ -61,24 +67,24 @@ export function buildNextProgress(
   updates: Array<{ cardId: string; result: "correct" | "incorrect" }>,
 ) {
   const nextProgress = { ...current };
+  const now = Date.now();
 
   updates.forEach(({ cardId, result }) => {
-    const previous = nextProgress[cardId] ?? {
-      attempts: 0,
-      correct: 0,
-      incorrect: 0,
-      streak: 0,
-      lastSeenAt: null,
-      lastResult: null,
-    };
+    const previous = normalizeCardProgress(nextProgress[cardId]);
 
     nextProgress[cardId] = {
       attempts: previous.attempts + 1,
       correct: previous.correct + (result === "correct" ? 1 : 0),
       incorrect: previous.incorrect + (result === "incorrect" ? 1 : 0),
       streak: result === "correct" ? previous.streak + 1 : 0,
-      lastSeenAt: Date.now(),
+      lastSeenAt: now,
       lastResult: result,
+      recentResults: [result, ...previous.recentResults].slice(
+        0,
+        RECENT_RESULTS_LIMIT,
+      ),
+      introducedAt: previous.introducedAt ?? now,
+      lastIncorrectAt: result === "incorrect" ? now : previous.lastIncorrectAt,
     };
   });
 

@@ -4,9 +4,10 @@ import {
   areCorrectToneSelections,
   createSession,
   isCorrectAnswer,
+  pickRoundCards,
   resolveAnswer,
 } from "./session";
-import type { Card } from "../types/cards";
+import type { Card, CardProgress } from "../types/cards";
 
 const sampleCards: Card[] = [
   {
@@ -145,5 +146,143 @@ describe("session engine", () => {
       expect(idsInPlay).toContain(session!.currentCard.id);
       expect(result.session.incorrectIds).toEqual([session!.currentCard.id]);
     }
+  });
+
+  it("builds adaptive rounds with recent errors, unseen cards and recovery cards", () => {
+    const adaptiveCards = Array.from({ length: 12 }, (_, index) => ({
+      ...sampleCards[index % sampleCards.length],
+      id: `adaptive-${index + 1}`,
+      hanzi: `字${index + 1}`,
+      spanish: `palabra-${index + 1}`,
+      answers: [`palabra-${index + 1}`],
+    })) satisfies Card[];
+    const progress: Record<string, CardProgress> = {};
+
+    adaptiveCards.forEach((card, index) => {
+      if (index < 3) {
+        progress[card.id] = {
+          attempts: 3,
+          correct: 1,
+          incorrect: 2,
+          streak: 0,
+          lastSeenAt: 100,
+          lastResult: "incorrect",
+          recentResults: ["incorrect", "correct", "incorrect"],
+          introducedAt: 10,
+          lastIncorrectAt: 100,
+        };
+      } else if (index < 5) {
+        progress[card.id] = {
+          attempts: 0,
+          correct: 0,
+          incorrect: 0,
+          streak: 0,
+          lastSeenAt: null,
+          lastResult: null,
+          recentResults: [],
+          introducedAt: null,
+          lastIncorrectAt: null,
+        };
+      } else if (index < 7) {
+        progress[card.id] = {
+          attempts: 3,
+          correct: 2,
+          incorrect: 1,
+          streak: 2,
+          lastSeenAt: 120,
+          lastResult: "correct",
+          recentResults: ["correct", "correct", "incorrect"],
+          introducedAt: 15,
+          lastIncorrectAt: 110,
+        };
+      } else if (index < 10) {
+        progress[card.id] = {
+          attempts: 4,
+          correct: 3,
+          incorrect: 1,
+          streak: 3,
+          lastSeenAt: 140,
+          lastResult: "correct",
+          recentResults: ["correct", "correct", "correct"],
+          introducedAt: 20,
+          lastIncorrectAt: 130,
+        };
+      } else {
+        progress[card.id] = {
+          attempts: 6,
+          correct: 6,
+          incorrect: 0,
+          streak: 6,
+          lastSeenAt: 160,
+          lastResult: "correct",
+          recentResults: ["correct", "correct", "correct"],
+          introducedAt: 30,
+          lastIncorrectAt: null,
+        };
+      }
+    });
+
+    const round = pickRoundCards(adaptiveCards, 8, progress, "tones");
+    const ids = round.map((card) => card.id);
+
+    expect(ids).toEqual(expect.arrayContaining(["adaptive-1", "adaptive-2", "adaptive-3"]));
+    expect(ids).toEqual(expect.arrayContaining(["adaptive-4", "adaptive-5"]));
+    expect(ids).toEqual(expect.arrayContaining(["adaptive-6", "adaptive-7"]));
+    expect(ids).not.toEqual(expect.arrayContaining(["adaptive-11", "adaptive-12"]));
+  });
+
+  it("keeps review mode focused on cards with historical mistakes", () => {
+    const reviewProgress: Record<string, CardProgress> = {
+      1: {
+        attempts: 4,
+        correct: 2,
+        incorrect: 2,
+        streak: 0,
+        lastSeenAt: 100,
+        lastResult: "incorrect",
+        recentResults: ["incorrect", "correct", "incorrect"],
+        introducedAt: 10,
+        lastIncorrectAt: 100,
+      },
+      2: {
+        attempts: 5,
+        correct: 4,
+        incorrect: 1,
+        streak: 3,
+        lastSeenAt: 90,
+        lastResult: "correct",
+        recentResults: ["correct", "incorrect", "correct"],
+        introducedAt: 10,
+        lastIncorrectAt: 85,
+      },
+      3: {
+        attempts: 0,
+        correct: 0,
+        incorrect: 0,
+        streak: 0,
+        lastSeenAt: null,
+        lastResult: null,
+        recentResults: [],
+        introducedAt: null,
+        lastIncorrectAt: null,
+      },
+      4: {
+        attempts: 4,
+        correct: 4,
+        incorrect: 0,
+        streak: 4,
+        lastSeenAt: 80,
+        lastResult: "correct",
+        recentResults: ["correct", "correct", "correct"],
+        introducedAt: 10,
+        lastIncorrectAt: null,
+      },
+    };
+
+    const round = pickRoundCards(sampleCards, 4, reviewProgress, "review");
+
+    expect(round.map((card) => card.id)).toEqual(expect.arrayContaining(["1", "2"]));
+    expect(round.map((card) => card.id)).not.toContain("3");
+    expect(round.map((card) => card.id)).not.toContain("4");
   });
 });

@@ -4,6 +4,7 @@ import type {
   SessionSummary,
   StudyMode,
 } from "../types/cards";
+import { hasRecentIncorrect, isMastered, normalizeCardProgress } from "./progress";
 import { areEquivalentAnswers } from "./text";
 
 export type Session = {
@@ -34,22 +35,169 @@ export function pickRoundCards(
   progress: Record<string, CardProgress>,
   mode: StudyMode,
 ) {
-  const sourceCards =
-    mode === "review"
-      ? allCards
-          .filter((card) => (progress[card.id]?.incorrect ?? 0) > 0)
-          .sort((left, right) => {
-            const leftScore =
-              (progress[left.id]?.incorrect ?? 0) -
-              (progress[left.id]?.correct ?? 0);
-            const rightScore =
-              (progress[right.id]?.incorrect ?? 0) -
-              (progress[right.id]?.correct ?? 0);
-            return rightScore - leftScore;
-          })
-      : shuffle(allCards);
+  if (mode === "review") {
+    return pickReviewRoundCards(allCards, roundSize, progress);
+  }
 
-  return sourceCards.slice(0, Math.min(roundSize, sourceCards.length));
+  return pickAdaptiveRoundCards(allCards, roundSize, progress);
+}
+
+function cardProgressMap(progressByCard: Record<string, CardProgress>, card: Card) {
+  return normalizeCardProgress(progressByCard[card.id]);
+}
+
+function buildAdaptiveScore(progress: CardProgress, now: number) {
+  const ageBoost =
+    progress.lastSeenAt === null
+      ? 0
+      : Math.min((now - progress.lastSeenAt) / (1000 * 60 * 60 * 8), 6);
+
+  return (
+    progress.incorrect * 6 +
+    (progress.lastResult === "incorrect" ? 18 : 0) +
+    (hasRecentIncorrect(progress) ? 12 : 0) +
+    ageBoost -
+    progress.correct * 2 -
+    progress.streak * 3 -
+    (isMastered(progress) ? 40 : 0)
+  );
+}
+
+function buildReviewScore(progress: CardProgress, now: number) {
+  const ageBoost =
+    progress.lastIncorrectAt === null
+      ? 0
+      : Math.min((now - progress.lastIncorrectAt) / (1000 * 60 * 60 * 6), 6);
+
+  return (
+    progress.incorrect * 7 +
+    (progress.lastResult === "incorrect" ? 24 : 0) +
+    (hasRecentIncorrect(progress) ? 16 : 0) +
+    ageBoost -
+    progress.correct
+  );
+}
+
+function sortCardsByScore(
+  cards: Card[],
+  progressByCard: Record<string, CardProgress>,
+  scoreBuilder: (progress: CardProgress, now: number) => number,
+) {
+  const now = Date.now();
+
+  return shuffle(cards).sort((left, right) => {
+    const leftScore = scoreBuilder(cardProgressMap(progressByCard, left), now);
+    const rightScore = scoreBuilder(cardProgressMap(progressByCard, right), now);
+    return rightScore - leftScore;
+  });
+}
+
+function takeCards(
+  source: Card[],
+  amount: number,
+  selectedIds: Set<string>,
+) {
+  const picked: Card[] = [];
+
+  source.forEach((card) => {
+    if (picked.length >= amount || selectedIds.has(card.id)) {
+      return;
+    }
+
+    selectedIds.add(card.id);
+    picked.push(card);
+  });
+
+  return picked;
+}
+
+function pickAdaptiveRoundCards(
+  allCards: Card[],
+  roundSize: number,
+  progressByCard: Record<string, CardProgress>,
+) {
+  const targetSize = Math.min(roundSize, allCards.length);
+
+  if (targetSize === 0) {
+    return [];
+  }
+
+  const recentErrorCards = sortCardsByScore(
+    allCards.filter((card) => cardProgressMap(progressByCard, card).lastResult === "incorrect"),
+    progressByCard,
+    buildAdaptiveScore,
+  );
+  const unseenCards = shuffle(
+    allCards.filter((card) => cardProgressMap(progressByCard, card).attempts === 0),
+  );
+  const recoveryCards = sortCardsByScore(
+    allCards.filter((card) => {
+      const progress = cardProgressMap(progressByCard, card);
+      return (
+        progress.attempts > 0 &&
+        progress.lastResult !== "incorrect" &&
+        hasRecentIncorrect(progress)
+      );
+    }),
+    progressByCard,
+    buildAdaptiveScore,
+  );
+  const generalCards = sortCardsByScore(
+    allCards.filter((card) => {
+      const progress = cardProgressMap(progressByCard, card);
+      return progress.attempts > 0 && !isMastered(progress);
+    }),
+    progressByCard,
+    buildAdaptiveScore,
+  );
+  const masteredCards = sortCardsByScore(
+    allCards.filter((card) => isMastered(cardProgressMap(progressByCard, card))),
+    progressByCard,
+    buildAdaptiveScore,
+  );
+
+  const selectedIds = new Set<string>();
+  const selected: Card[] = [];
+  const recentErrorQuota = Math.min(
+    recentErrorCards.length,
+    Math.ceil(targetSize * 0.35),
+  );
+  const unseenQuota = Math.min(unseenCards.length, Math.ceil(targetSize * 0.25));
+  const recoveryQuota = Math.min(
+    recoveryCards.length,
+    Math.ceil(targetSize * 0.25),
+  );
+
+  selected.push(...takeCards(recentErrorCards, recentErrorQuota, selectedIds));
+  selected.push(...takeCards(unseenCards, unseenQuota, selectedIds));
+  selected.push(...takeCards(recoveryCards, recoveryQuota, selectedIds));
+  selected.push(
+    ...takeCards(generalCards, targetSize - selected.length, selectedIds),
+  );
+  selected.push(
+    ...takeCards(masteredCards, targetSize - selected.length, selectedIds),
+  );
+
+  return shuffle(selected).slice(0, targetSize);
+}
+
+function pickReviewRoundCards(
+  allCards: Card[],
+  roundSize: number,
+  progressByCard: Record<string, CardProgress>,
+) {
+  const targetSize = Math.min(roundSize, allCards.length);
+
+  const eligibleCards = sortCardsByScore(
+    allCards.filter((card) => {
+      const progress = cardProgressMap(progressByCard, card);
+      return progress.incorrect > 0 || hasRecentIncorrect(progress);
+    }),
+    progressByCard,
+    buildReviewScore,
+  );
+
+  return eligibleCards.slice(0, targetSize);
 }
 
 export function createSession(

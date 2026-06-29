@@ -28,6 +28,9 @@ export type CardProgress = {
   streak: number;
   lastSeenAt: number | null;
   lastResult: "correct" | "incorrect" | null;
+  recentResults: Array<"correct" | "incorrect">;
+  introducedAt: number | null;
+  lastIncorrectAt: number | null;
 };
 
 export type UserSettings = {
