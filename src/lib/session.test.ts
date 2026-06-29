@@ -231,6 +231,15 @@ describe("session engine", () => {
     expect(ids).not.toEqual(expect.arrayContaining(["adaptive-11", "adaptive-12"]));
   });
 
+  it("fills the round with unused cards when a quota bucket is empty", () => {
+    const emptyProgress: Record<string, CardProgress> = {};
+
+    const round = pickRoundCards(sampleCards, 4, emptyProgress, "tones");
+
+    expect(round).toHaveLength(4);
+    expect(new Set(round.map((card) => card.id)).size).toBe(4);
+  });
+
   it("keeps review mode focused on cards with historical mistakes", () => {
     const reviewProgress: Record<string, CardProgress> = {
       1: {

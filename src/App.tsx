@@ -23,6 +23,7 @@ import {
   loadState,
   saveState,
 } from "./lib/storage";
+import { aggregateProgressByCards } from "./lib/progress";
 import type {
   PersistedState,
   SessionSummary,
@@ -72,6 +73,10 @@ export default function App() {
       ? customDeck
       : vocabularyDecks[persistedState.settings.vocabularySet];
   const activeCards = activeDeck.cards;
+  const aggregateProgress = useMemo(
+    () => aggregateProgressByCards(persistedState.progress),
+    [persistedState.progress],
+  );
 
   const resetSessionUi = () => {
     setDraft("");
@@ -127,10 +132,14 @@ export default function App() {
   }, []);
 
   const handleStart = (mode: StudyMode) => {
+    const selectionProgress =
+      mode === "review"
+        ? aggregateProgress
+        : persistedState.progress[mode];
     const roundCards = pickRoundCards(
       activeCards,
       persistedState.settings.roundSize,
-      persistedState.progress,
+      selectionProgress,
       mode,
     );
 
@@ -243,6 +252,7 @@ export default function App() {
     if (result.done) {
       const nextProgress = buildNextProgress(
         persistedState.progress,
+        screenState.mode,
         nextUpdates,
       );
 
@@ -268,7 +278,7 @@ export default function App() {
   };
 
   const mistakeCards = activeCards.filter(
-    (card) => (persistedState.progress[card.id]?.incorrect ?? 0) > 0,
+    (card) => (aggregateProgress[card.id]?.incorrect ?? 0) > 0,
   ).length;
 
   if (screenState.name === "session") {
@@ -316,7 +326,7 @@ export default function App() {
       mistakeCards={mistakeCards}
       customDeckErrors={customDeck.errors}
       customRows={customRows}
-      progress={persistedState.progress}
+      progress={aggregateProgress}
       settings={persistedState.settings}
       onVocabularySetChange={(value) =>
         handleSettingsChange({

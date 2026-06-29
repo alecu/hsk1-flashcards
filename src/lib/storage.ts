@@ -1,8 +1,14 @@
 import { defaultCustomWordList } from "../data/customList";
-import { normalizeCardProgress, RECENT_RESULTS_LIMIT } from "./progress";
+import {
+  defaultProgressByMode,
+  normalizeCardProgress,
+  normalizeProgressByMode,
+  RECENT_RESULTS_LIMIT,
+} from "./progress";
 import type {
   CardProgress,
   PersistedState,
+  StudyMode,
   SessionSummary,
   UserSettings,
 } from "../types/cards";
@@ -19,7 +25,7 @@ export const defaultSettings: UserSettings = {
 
 export const defaultPersistedState: PersistedState = {
   settings: defaultSettings,
-  progress: {},
+  progress: defaultProgressByMode(),
   recentSessions: [],
 };
 
@@ -41,12 +47,7 @@ export function loadState() {
         ...defaultSettings,
         ...parsed.settings,
       },
-      progress: Object.fromEntries(
-        Object.entries(parsed.progress ?? {}).map(([cardId, progress]) => [
-          cardId,
-          normalizeCardProgress(progress),
-        ]),
-      ),
+      progress: normalizeProgressByMode(parsed.progress),
       recentSessions: parsed.recentSessions ?? [],
     };
   } catch {
@@ -63,16 +64,20 @@ export function saveState(state: PersistedState) {
 }
 
 export function buildNextProgress(
-  current: Record<string, CardProgress>,
+  current: PersistedState["progress"],
+  mode: StudyMode,
   updates: Array<{ cardId: string; result: "correct" | "incorrect" }>,
 ) {
-  const nextProgress = { ...current };
+  const nextProgress = {
+    ...current,
+    [mode]: { ...current[mode] },
+  };
   const now = Date.now();
 
   updates.forEach(({ cardId, result }) => {
-    const previous = normalizeCardProgress(nextProgress[cardId]);
+    const previous = normalizeCardProgress(nextProgress[mode][cardId]);
 
-    nextProgress[cardId] = {
+    nextProgress[mode][cardId] = {
       attempts: previous.attempts + 1,
       correct: previous.correct + (result === "correct" ? 1 : 0),
       incorrect: previous.incorrect + (result === "incorrect" ? 1 : 0),

@@ -33,6 +33,8 @@ export type CardProgress = {
   lastIncorrectAt: number | null;
 };
 
+export type ProgressByMode = Record<StudyMode, Record<string, CardProgress>>;
+
 export type UserSettings = {
   roundSize: number;
   showPinyin: boolean;
@@ -43,7 +45,7 @@ export type UserSettings = {
 
 export type PersistedState = {
   settings: UserSettings;
-  progress: Record<string, CardProgress>;
+  progress: ProgressByMode;
   recentSessions: SessionSummary[];
 };
 

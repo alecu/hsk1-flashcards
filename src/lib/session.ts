@@ -177,6 +177,13 @@ function pickAdaptiveRoundCards(
   selected.push(
     ...takeCards(masteredCards, targetSize - selected.length, selectedIds),
   );
+  selected.push(
+    ...takeCards(
+      sortCardsByScore(allCards, progressByCard, buildAdaptiveScore),
+      targetSize - selected.length,
+      selectedIds,
+    ),
+  );
 
   return shuffle(selected).slice(0, targetSize);
 }

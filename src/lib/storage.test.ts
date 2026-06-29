@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import { buildNextProgress } from "./storage";
+import { defaultProgressByMode } from "./progress";
 import type { CardProgress } from "../types/cards";
 
 describe("storage progress updates", () => {
@@ -21,19 +22,26 @@ describe("storage progress updates", () => {
       },
     };
 
-    const next = buildNextProgress(current, [
+    const next = buildNextProgress(
+      {
+        ...defaultProgressByMode(),
+        tones: current,
+      },
+      "tones",
+      [
       { cardId: "cat", result: "incorrect" },
       { cardId: "dog", result: "correct" },
-    ]);
+      ],
+    );
 
-    expect(next.cat.recentResults).toEqual([
+    expect(next.tones.cat.recentResults).toEqual([
       "incorrect",
       "correct",
       "incorrect",
     ]);
-    expect(next.cat.lastIncorrectAt).toBe(1_234);
-    expect(next.dog.introducedAt).toBe(1_234);
-    expect(next.dog.recentResults).toEqual(["correct"]);
+    expect(next.tones.cat.lastIncorrectAt).toBe(1_234);
+    expect(next.tones.dog.introducedAt).toBe(1_234);
+    expect(next.tones.dog.recentResults).toEqual(["correct"]);
 
     vi.restoreAllMocks();
   });
