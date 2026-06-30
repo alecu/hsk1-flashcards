@@ -235,6 +235,133 @@ h3 {
   line-height: 1.5;
 }
 
+.stats-helper-copy {
+  display: block;
+  margin-top: 6px;
+  max-width: 70ch;
+  color: rgba(32, 22, 19, 0.68);
+  line-height: 1.5;
+}
+
+.stats-panel {
+  display: grid;
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.stats-toolbar {
+  display: grid;
+  gap: 12px;
+}
+
+.stats-mode-switcher {
+  display: grid;
+  gap: 10px;
+}
+
+.stats-mode-button {
+  padding: 12px 14px;
+  text-align: left;
+}
+
+.stats-sorter {
+  display: grid;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.stats-sorter select {
+  width: 100%;
+  border: 1px solid rgba(98, 68, 46, 0.16);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.76);
+  padding: 12px 14px;
+}
+
+.stats-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px 18px;
+  color: rgba(32, 22, 19, 0.72);
+  font-size: 0.94rem;
+}
+
+.stats-table-shell {
+  overflow-x: auto;
+  border: 1px solid rgba(98, 68, 46, 0.12);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.stats-table {
+  width: 100%;
+  min-width: 960px;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+
+.stats-table th,
+.stats-table td {
+  padding: 12px 14px;
+  border-right: 1px solid rgba(98, 68, 46, 0.12);
+  border-bottom: 1px solid rgba(98, 68, 46, 0.12);
+  text-align: left;
+  vertical-align: top;
+}
+
+.stats-table th:last-child,
+.stats-table td:last-child {
+  border-right: 0;
+}
+
+.stats-table tr:last-child td {
+  border-bottom: 0;
+}
+
+.stats-table thead th {
+  position: sticky;
+  top: 0;
+  background: rgba(249, 240, 225, 0.95);
+  z-index: 1;
+}
+
+.stats-word-cell {
+  display: grid;
+  gap: 4px;
+  min-width: 10rem;
+}
+
+.stats-word-cell strong {
+  font-size: 1.1rem;
+}
+
+.stats-word-cell span,
+.stats-word-cell small {
+  color: rgba(32, 22, 19, 0.72);
+}
+
+.stats-bucket,
+.stats-probability {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  background: rgba(191, 90, 42, 0.12);
+  color: var(--accent-dark);
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.stats-probability {
+  background: rgba(85, 185, 217, 0.16);
+  color: #0f5367;
+}
+
+.stats-probability-active {
+  background: rgba(47, 157, 88, 0.18);
+  color: #1b6d3a;
+}
+
 .custom-table-shell {
   overflow-x: auto;
   border: 1px solid rgba(98, 68, 46, 0.12);
@@ -829,12 +956,21 @@ h3 {
     align-items: center;
   }
 
+  .stats-toolbar {
+    grid-template-columns: 1fr 280px;
+    align-items: end;
+  }
+
   .deck-switcher {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }
 
   .mode-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .stats-mode-switcher {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
   .answer-row {

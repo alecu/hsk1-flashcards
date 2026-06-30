@@ -25,6 +25,8 @@ import {
 } from "./lib/storage";
 import { aggregateProgressByCards } from "./lib/progress";
 import type {
+  Card,
+  ProgressByMode,
   PersistedState,
   SessionSummary,
   StudyMode,
@@ -326,7 +328,9 @@ export default function App() {
       mistakeCards={mistakeCards}
       customDeckErrors={customDeck.errors}
       customRows={customRows}
+      allCards={activeCards as Card[]}
       progress={aggregateProgress}
+      progressByMode={persistedState.progress as ProgressByMode}
       settings={persistedState.settings}
       onVocabularySetChange={(value) =>
         handleSettingsChange({

@@ -1,8 +1,15 @@
-import { useEffect, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
 
+import {
+  buildModeStatsRows,
+  sortModeStatsRows,
+  type CardModeStatsSort,
+} from "../lib/modeStats";
 import type { CustomWordRow } from "../data/customList";
 import type {
+  Card,
   CardProgress,
+  ProgressByMode,
   StudyMode,
   UserSettings,
   VocabularySet,
@@ -10,11 +17,13 @@ import type {
 
 type HomeScreenProps = {
   activeVocabularySet: VocabularySet;
+  allCards: Card[];
   totalCards: number;
   mistakeCards: number;
   customDeckErrors: string[];
   customRows: CustomWordRow[];
   progress: Record<string, CardProgress>;
+  progressByMode: ProgressByMode;
   settings: UserSettings;
   onVocabularySetChange: (value: VocabularySet) => void;
   onCustomRowChange: (
@@ -83,6 +92,18 @@ const modeCards: Array<{
 ];
 
 const spreadsheetColumns = ["hanzi", "pinyin", "spanish"] as const;
+const statsSortOptions: Array<{ value: CardModeStatsSort; label: string }> = [
+  { value: "priority-desc", label: "Prioridad alta" },
+  { value: "probability-desc", label: "Prob. estimada alta" },
+  { value: "recent-incorrect-desc", label: "Fallos recientes" },
+  { value: "incorrect-desc", label: "Fallos totales" },
+  { value: "attempts-desc", label: "Intentos" },
+  { value: "correct-desc", label: "Aciertos" },
+  { value: "streak-desc", label: "Racha" },
+  { value: "pinyin-asc", label: "Pinyin A-Z" },
+  { value: "hanzi-asc", label: "Hanzi A-Z" },
+  { value: "spanish-asc", label: "Castellano A-Z" },
+];
 
 function focusSpreadsheetCell(rowIndex: number, columnIndex: number) {
   if (typeof document === "undefined") {
@@ -98,11 +119,13 @@ function focusSpreadsheetCell(rowIndex: number, columnIndex: number) {
 
 export function HomeScreen({
   activeVocabularySet,
+  allCards,
   totalCards,
   mistakeCards,
   customDeckErrors,
   customRows,
   progress,
+  progressByMode,
   settings,
   onVocabularySetChange,
   onCustomRowChange,
@@ -113,9 +136,26 @@ export function HomeScreen({
   onStart,
 }: HomeScreenProps) {
   const [isCustomEditorOpen, setIsCustomEditorOpen] = useState(false);
+  const [isStatsOpen, setIsStatsOpen] = useState(false);
+  const [statsMode, setStatsMode] = useState<StudyMode>("typing");
+  const [statsSort, setStatsSort] = useState<CardModeStatsSort>("priority-desc");
   const knownCards = Object.values(progress).filter(
     (entry) => entry.correct >= 2 && entry.correct > entry.incorrect,
   ).length;
+  const statsRows = useMemo(
+    () =>
+      sortModeStatsRows(
+        buildModeStatsRows(
+          allCards,
+          progressByMode,
+          statsMode,
+          settings.roundSize,
+        ),
+        statsSort,
+      ),
+    [allCards, progressByMode, settings.roundSize, statsMode, statsSort],
+  );
+  const previewCount = statsRows.filter((row) => row.selectedInPreview).length;
 
   useEffect(() => {
     if (activeVocabularySet === "custom") {
@@ -420,6 +460,116 @@ export function HomeScreen({
             <span>Colorear silabas segun tono</span>
           </label>
         </div>
+      </section>
+
+      <section className="control-panel">
+        <div className="custom-list-header">
+          <div>
+            <p className="eyebrow">Analitica</p>
+            <h2>Estadísticas avanzadas</h2>
+            <small className="stats-helper-copy">
+              Vista por modo con bucket, prioridad del algoritmo y probabilidad
+              estimada de entrar en un próximo mazo de {settings.roundSize} tarjetas.
+            </small>
+          </div>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={() => setIsStatsOpen((current) => !current)}
+            aria-expanded={isStatsOpen}
+          >
+            {isStatsOpen ? "Ocultar estadísticas" : "Ver estadísticas"}
+          </button>
+        </div>
+
+        {isStatsOpen ? (
+          <div className="stats-panel">
+            <div className="stats-toolbar">
+              <div className="stats-mode-switcher" role="tablist" aria-label="Modo de estadísticas">
+                {modeCards.map((mode) => (
+                  <button
+                    key={mode.id}
+                    type="button"
+                    role="tab"
+                    aria-selected={statsMode === mode.id}
+                    className={`deck-option stats-mode-button ${statsMode === mode.id ? "deck-option-active" : ""}`}
+                    onClick={() => setStatsMode(mode.id)}
+                  >
+                    <strong>{mode.title}</strong>
+                  </button>
+                ))}
+              </div>
+
+              <label className="stats-sorter">
+                <span>Ordenar por</span>
+                <select
+                  value={statsSort}
+                  onChange={(event) =>
+                    setStatsSort(event.target.value as CardModeStatsSort)
+                  }
+                >
+                  {statsSortOptions.map((option) => (
+                    <option key={option.value} value={option.value}>
+                      {option.label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="stats-summary">
+              <span>{previewCount} tarjetas entrarían en la próxima ronda.</span>
+              <span>{statsRows.length} tarjetas analizadas.</span>
+            </div>
+
+            <div className="stats-table-shell">
+              <table className="stats-table" aria-label="Estadísticas por tarjeta">
+                <thead>
+                  <tr>
+                    <th scope="col">Palabra</th>
+                    <th scope="col">Bucket</th>
+                    <th scope="col">Prob. est.</th>
+                    <th scope="col">Score</th>
+                    <th scope="col">Intentos</th>
+                    <th scope="col">Aciertos</th>
+                    <th scope="col">Fallos</th>
+                    <th scope="col">Racha</th>
+                    <th scope="col">Recientes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {statsRows.map((row) => (
+                    <tr key={`${row.mode}-${row.cardId}`}>
+                      <td>
+                        <div className="stats-word-cell">
+                          <strong>{row.hanzi}</strong>
+                          <span>{row.pinyinDisplay}</span>
+                          <small>{row.spanish}</small>
+                        </div>
+                      </td>
+                      <td>
+                        <span className="stats-bucket">{row.bucket}</span>
+                      </td>
+                      <td>
+                        <span
+                          className={`stats-probability ${row.selectedInPreview ? "stats-probability-active" : ""}`}
+                        >
+                          {Math.round(row.estimatedProbability)}%
+                        </span>
+                      </td>
+                      <td>{row.priorityScore.toFixed(1)}</td>
+                      <td>{row.attempts}</td>
+                      <td>{row.correct}</td>
+                      <td>{row.incorrect}</td>
+                      <td>{row.streak}</td>
+                      <td>{row.recentResultsLabel}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : null}
       </section>
 
       <section className="mode-grid">

@@ -7,6 +7,13 @@ import type {
 import { hasRecentIncorrect, isMastered, normalizeCardProgress } from "./progress";
 import { areEquivalentAnswers } from "./text";
 
+export type AdaptiveSelectionBucket =
+  | "recent-error"
+  | "unseen"
+  | "recovery"
+  | "general"
+  | "mastered";
+
 export type Session = {
   id: string;
   mode: StudyMode;
@@ -46,7 +53,7 @@ function cardProgressMap(progressByCard: Record<string, CardProgress>, card: Car
   return normalizeCardProgress(progressByCard[card.id]);
 }
 
-function buildAdaptiveScore(progress: CardProgress, now: number) {
+export function getAdaptivePriorityScore(progress: CardProgress, now: number) {
   const ageBoost =
     progress.lastSeenAt === null
       ? 0
@@ -63,7 +70,7 @@ function buildAdaptiveScore(progress: CardProgress, now: number) {
   );
 }
 
-function buildReviewScore(progress: CardProgress, now: number) {
+export function getReviewPriorityScore(progress: CardProgress, now: number) {
   const ageBoost =
     progress.lastIncorrectAt === null
       ? 0
@@ -76,6 +83,28 @@ function buildReviewScore(progress: CardProgress, now: number) {
     ageBoost -
     progress.correct
   );
+}
+
+export function getAdaptiveSelectionBucket(
+  progress: CardProgress,
+): AdaptiveSelectionBucket {
+  if (progress.lastResult === "incorrect") {
+    return "recent-error";
+  }
+
+  if (progress.attempts === 0) {
+    return "unseen";
+  }
+
+  if (hasRecentIncorrect(progress)) {
+    return "recovery";
+  }
+
+  if (isMastered(progress)) {
+    return "mastered";
+  }
+
+  return "general";
 }
 
 function sortCardsByScore(
@@ -125,7 +154,7 @@ function pickAdaptiveRoundCards(
   const recentErrorCards = sortCardsByScore(
     allCards.filter((card) => cardProgressMap(progressByCard, card).lastResult === "incorrect"),
     progressByCard,
-    buildAdaptiveScore,
+    getAdaptivePriorityScore,
   );
   const unseenCards = shuffle(
     allCards.filter((card) => cardProgressMap(progressByCard, card).attempts === 0),
@@ -140,7 +169,7 @@ function pickAdaptiveRoundCards(
       );
     }),
     progressByCard,
-    buildAdaptiveScore,
+    getAdaptivePriorityScore,
   );
   const generalCards = sortCardsByScore(
     allCards.filter((card) => {
@@ -148,12 +177,12 @@ function pickAdaptiveRoundCards(
       return progress.attempts > 0 && !isMastered(progress);
     }),
     progressByCard,
-    buildAdaptiveScore,
+    getAdaptivePriorityScore,
   );
   const masteredCards = sortCardsByScore(
     allCards.filter((card) => isMastered(cardProgressMap(progressByCard, card))),
     progressByCard,
-    buildAdaptiveScore,
+    getAdaptivePriorityScore,
   );
 
   const selectedIds = new Set<string>();
@@ -179,7 +208,7 @@ function pickAdaptiveRoundCards(
   );
   selected.push(
     ...takeCards(
-      sortCardsByScore(allCards, progressByCard, buildAdaptiveScore),
+      sortCardsByScore(allCards, progressByCard, getAdaptivePriorityScore),
       targetSize - selected.length,
       selectedIds,
     ),
@@ -201,7 +230,7 @@ function pickReviewRoundCards(
       return progress.incorrect > 0 || hasRecentIncorrect(progress);
     }),
     progressByCard,
-    buildReviewScore,
+    getReviewPriorityScore,
   );
 
   return eligibleCards.slice(0, targetSize);
