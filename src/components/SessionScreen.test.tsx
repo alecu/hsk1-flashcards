@@ -1,8 +1,9 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { SessionScreen } from "./SessionScreen";
 import { defaultCustomWordList } from "../data/customList";
+import * as speech from "../lib/speech";
 import type { Session } from "../lib/session";
 import type { Card, UserSettings } from "../types/cards";
 
@@ -62,6 +63,8 @@ const dogCard: Card = {
 describe("SessionScreen", () => {
   beforeEach(() => {
     Element.prototype.scrollIntoView = vi.fn();
+    vi.spyOn(speech, "speakChineseText").mockReturnValue(true);
+    vi.spyOn(speech, "stopChineseSpeech").mockImplementation(() => undefined);
   });
 
   it("shows plain pinyin before validating in tone mode", () => {
@@ -96,6 +99,9 @@ describe("SessionScreen", () => {
     expect(tonePromptPlainPinyin).toBeNull();
     expect(toneButtons[0]).toHaveTextContent("māo1");
     expect(toneButtons[0]).not.toHaveTextContent("1māo1");
+    expect(
+      screen.getByRole("button", { name: "Reproducir palabra" }),
+    ).toBeInTheDocument();
   });
 
   it("reveals colored pinyin with tone after validating in tone mode", () => {
@@ -210,5 +216,33 @@ describe("SessionScreen", () => {
       behavior: "smooth",
       block: "start",
     });
+  });
+
+  it("autoplays the full Chinese word and allows replay by word or syllable", () => {
+    render(
+      <SessionScreen
+        allCards={[catCard]}
+        draft=""
+        feedback={null}
+        mode="tones"
+        onCancel={vi.fn()}
+        onChoice={vi.fn()}
+        onDraftChange={vi.fn()}
+        onNext={vi.fn()}
+        onSubmit={vi.fn()}
+        onToneSelectionChange={vi.fn()}
+        session={session}
+        settings={settings}
+        toneSelections={[-1]}
+      />,
+    );
+
+    expect(speech.speakChineseText).toHaveBeenCalledWith("猫");
+
+    fireEvent.click(screen.getByRole("button", { name: "Reproducir palabra" }));
+    fireEvent.click(screen.getByRole("button", { name: "Reproducir sílaba" }));
+
+    expect(speech.speakChineseText).toHaveBeenCalledWith("猫");
+    expect(speech.speakChineseText).toHaveBeenCalledTimes(3);
   });
 });

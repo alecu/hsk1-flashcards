@@ -3,9 +3,12 @@ import type { Card } from "../types/cards";
 
 type TonePinyinCardProps = {
   card: Card;
+  audioEnabled?: boolean;
   colorTones: boolean;
   compactSpanish?: boolean;
   hideSpanishLabel?: boolean;
+  onPlaySyllable?: (index: number) => void;
+  onPlayWord?: () => void;
   plainPinyin?: boolean;
   revealSpanish?: boolean;
   showPinyin: boolean;
@@ -13,15 +16,29 @@ type TonePinyinCardProps = {
 
 export function TonePinyinCard({
   card,
+  audioEnabled = false,
   colorTones,
   compactSpanish = false,
   hideSpanishLabel = false,
+  onPlaySyllable,
+  onPlayWord,
   plainPinyin = false,
   revealSpanish = false,
   showPinyin,
 }: TonePinyinCardProps) {
   return (
     <article className="study-card">
+      {audioEnabled ? (
+        <div className="card-audio-row">
+          <button
+            type="button"
+            className="ghost-button audio-button"
+            onClick={onPlayWord}
+          >
+            Reproducir palabra
+          </button>
+        </div>
+      ) : null}
       <div className="hanzi-row" aria-label={`Palabra en chino: ${card.hanzi}`}>
         {card.syllables.map((syllable, index) => (
           <div
@@ -41,6 +58,15 @@ export function TonePinyinCard({
             ) : (
               <span className="pinyin pinyin-hidden">pinyin oculto</span>
             )}
+            {audioEnabled ? (
+              <button
+                type="button"
+                className="ghost-button audio-button audio-button-syllable"
+                onClick={() => onPlaySyllable?.(index)}
+              >
+                Reproducir sílaba
+              </button>
+            ) : null}
           </div>
         ))}
       </div>

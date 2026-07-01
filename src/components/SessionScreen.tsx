@@ -4,6 +4,12 @@ import {
   buildToneOptionPinyin,
   plainPinyinFromNumericSyllable,
 } from "../lib/pinyin";
+import {
+  buildSpeechTextFromCard,
+  buildSpeechTextFromSyllable,
+  speakChineseText,
+  stopChineseSpeech,
+} from "../lib/speech";
 import { TonePinyinCard } from "./TonePinyinCard";
 import { buildMultipleChoiceOptions } from "../lib/session";
 import type { Card, StudyMode, Tone, UserSettings } from "../types/cards";
@@ -76,6 +82,18 @@ export function SessionScreen({
     }
   }, [session.currentCard.id]);
 
+  useEffect(() => {
+    if (!isToneMode) {
+      return;
+    }
+
+    speakChineseText(buildSpeechTextFromCard(session.currentCard));
+
+    return () => {
+      stopChineseSpeech();
+    };
+  }, [isToneMode, session.currentCard]);
+
   return (
     <main className="app-shell session-layout">
       <header className="session-topbar">
@@ -101,10 +119,19 @@ export function SessionScreen({
 
       <section className="study-stage" ref={studyStageRef}>
         <TonePinyinCard
+          audioEnabled={isToneMode}
           card={session.currentCard}
           colorTones={isToneMode ? feedback !== null : settings.colorTones}
           compactSpanish={isToneFeedbackVisible}
           hideSpanishLabel={isToneFeedbackVisible}
+          onPlaySyllable={(index) =>
+            speakChineseText(
+              buildSpeechTextFromSyllable(session.currentCard.syllables[index]),
+            )
+          }
+          onPlayWord={() =>
+            speakChineseText(buildSpeechTextFromCard(session.currentCard))
+          }
           plainPinyin={isToneMode && feedback === null}
           revealSpanish={feedback !== null}
           showPinyin={isToneMode ? true : settings.showPinyin}

@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 
 import { TonePinyinCard } from "./TonePinyinCard";
 import type { Card } from "../types/cards";
@@ -172,5 +172,26 @@ describe("TonePinyinCard", () => {
     expect(screen.getByText("猫")).toBeInTheDocument();
     expect(screen.getByText("māo1")).toBeInTheDocument();
     expect(container.querySelectorAll(".syllable-block")).toHaveLength(1);
+  });
+
+  it("shows word and syllable audio controls when enabled", () => {
+    render(
+      <TonePinyinCard
+        card={dadCard}
+        audioEnabled
+        colorTones
+        onPlaySyllable={vi.fn()}
+        onPlayWord={vi.fn()}
+        revealSpanish={false}
+        showPinyin
+      />,
+    );
+
+    expect(
+      screen.getByRole("button", { name: "Reproducir palabra" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getAllByRole("button", { name: "Reproducir sílaba" }),
+    ).toHaveLength(2);
   });
 });
