@@ -129,9 +129,6 @@ export function SessionScreen({
               buildSpeechTextFromSyllable(session.currentCard.syllables[index]),
             )
           }
-          onPlayWord={() =>
-            speakChineseText(buildSpeechTextFromCard(session.currentCard))
-          }
           plainPinyin={isToneMode && feedback === null}
           revealSpanish={feedback !== null}
           showPinyin={isToneMode ? true : settings.showPinyin}

@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 import { describe, expect, it, vi } from "vitest";
 
 import { TonePinyinCard } from "./TonePinyinCard";
@@ -174,24 +174,30 @@ describe("TonePinyinCard", () => {
     expect(container.querySelectorAll(".syllable-block")).toHaveLength(1);
   });
 
-  it("shows word and syllable audio controls when enabled", () => {
+  it("uses hanzi and pinyin as syllable audio triggers when enabled", () => {
+    const onPlaySyllable = vi.fn();
+
     render(
       <TonePinyinCard
         card={dadCard}
         audioEnabled
         colorTones
-        onPlaySyllable={vi.fn()}
-        onPlayWord={vi.fn()}
+        onPlaySyllable={onPlaySyllable}
         revealSpanish={false}
         showPinyin
       />,
     );
 
-    expect(
-      screen.getByRole("button", { name: "Reproducir palabra" }),
-    ).toBeInTheDocument();
-    expect(
-      screen.getAllByRole("button", { name: "Reproducir sílaba" }),
-    ).toHaveLength(2);
+    const hanziButtons = screen.getAllByRole("button", { name: "爸" });
+    const pinyinButtons = screen.getAllByRole("button", { name: /bà4|ba0/ });
+
+    expect(screen.queryByRole("button", { name: "Reproducir palabra" })).not.toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Reproducir sílaba" })).not.toBeInTheDocument();
+
+    fireEvent.click(hanziButtons[0]);
+    fireEvent.click(pinyinButtons[0]);
+
+    expect(onPlaySyllable).toHaveBeenNthCalledWith(1, 0);
+    expect(onPlaySyllable).toHaveBeenNthCalledWith(2, 0);
   });
 });

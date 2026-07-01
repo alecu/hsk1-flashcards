@@ -100,8 +100,8 @@ describe("SessionScreen", () => {
     expect(toneButtons[0]).toHaveTextContent("māo1");
     expect(toneButtons[0]).not.toHaveTextContent("1māo1");
     expect(
-      screen.getByRole("button", { name: "Reproducir palabra" }),
-    ).toBeInTheDocument();
+      screen.queryByRole("button", { name: "Reproducir palabra" }),
+    ).not.toBeInTheDocument();
   });
 
   it("reveals colored pinyin with tone after validating in tone mode", () => {
@@ -218,7 +218,7 @@ describe("SessionScreen", () => {
     });
   });
 
-  it("autoplays the full Chinese word and allows replay by word or syllable", () => {
+  it("autoplays the full Chinese word and allows replay from hanzi or pinyin", () => {
     render(
       <SessionScreen
         allCards={[catCard]}
@@ -239,8 +239,8 @@ describe("SessionScreen", () => {
 
     expect(speech.speakChineseText).toHaveBeenCalledWith("猫");
 
-    fireEvent.click(screen.getByRole("button", { name: "Reproducir palabra" }));
-    fireEvent.click(screen.getByRole("button", { name: "Reproducir sílaba" }));
+    fireEvent.click(screen.getByRole("button", { name: "猫" }));
+    fireEvent.click(screen.getByRole("button", { name: "mao" }));
 
     expect(speech.speakChineseText).toHaveBeenCalledWith("猫");
     expect(speech.speakChineseText).toHaveBeenCalledTimes(3);
