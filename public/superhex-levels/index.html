@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Hex Level Lab</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <section class="stage" aria-label="Animated hex level preview">
+        <canvas id="hexCanvas"></canvas>
+        <div class="hud">
+          <div>
+            <span id="stageName">Line</span>
+            <span id="rankLabel">rank 0</span>
+          </div>
+          <div>
+            <span id="waveLabel">wave 0</span>
+            <span id="wallLabel">0 walls</span>
+          </div>
+        </div>
+      </section>
+
+      <aside class="panel" aria-label="Level controls">
+        <div class="brand">
+          <h1>Hex Level Lab</h1>
+          <p>Procedural tunnel patterns for a small hex runner.</p>
+        </div>
+
+        <label class="field">
+          <span>Stage</span>
+          <select id="levelSelect"></select>
+        </label>
+
+        <div class="field">
+          <span>Tempo</span>
+          <input id="tempoRange" type="range" min="20" max="90" value="52">
+        </div>
+
+        <label class="field">
+          <span>Seed</span>
+          <input id="seedInput" type="number" min="1" max="999999" value="123">
+        </label>
+
+        <div class="actions">
+          <button id="pauseButton" type="button" title="Pause or resume">
+            <span aria-hidden="true">||</span>
+          </button>
+          <button id="rerollButton" type="button" title="Generate a new seed">
+            <span aria-hidden="true">~</span>
+          </button>
+          <button id="stepButton" type="button" title="Advance one pattern">
+            <span aria-hidden="true">></span>
+          </button>
+        </div>
+
+        <div class="swatches" id="paletteSwatches" aria-label="Palette"></div>
+
+        <div class="readout">
+          <div>
+            <span>Pattern</span>
+            <strong id="patternName">spiral gap</strong>
+          </div>
+          <div>
+            <span>Delay</span>
+            <strong id="delayLabel">0</strong>
+          </div>
+          <div>
+            <span>Rotation</span>
+            <strong id="rotationLabel">clockwise</strong>
+          </div>
+        </div>
+      </aside>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
