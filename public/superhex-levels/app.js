@@ -247,7 +247,7 @@ function spawnWave(force = false) {
       distance,
       length,
       pattern: state.waveCount,
-      hue: (state.waveCount + index) % 3
+      hue: state.waveCount % 3
     });
   }
   state.nextSpawnDelay = wave.delay * ORIGINAL_TICK_MS;
