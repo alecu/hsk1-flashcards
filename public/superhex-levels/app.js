@@ -235,8 +235,12 @@ function resetRun() {
   state.nextSpawnDelay = 0;
 }
 
+function activePatternClear() {
+  return state.walls.length === 0;
+}
+
 function spawnWave(force = false) {
-  if (!force && state.nextSpawnDelay > 0) return;
+  if (!force && (state.nextSpawnDelay > 0 || !activePatternClear())) return;
   const wave = nextWave(state.levelIndex, Math.floor(state.rank), state.rng);
   for (let index = 0; index < wave.walls.length; index += 1) {
     const wallDef = wave.walls[index];
@@ -381,11 +385,11 @@ function update(now) {
     const scroll = tempo * 0.025 * dt;
     state.rotation += (level.rotation * 0.00032 * dt) * (level.rotation % 2 ? 1 : -1);
     state.nextSpawnDelay -= dt;
-    spawnWave(false);
     for (const obstacle of state.walls) {
       obstacle.distance -= scroll;
     }
     state.walls = state.walls.filter((obstacle) => obstacle.distance + obstacle.length > 28);
+    spawnWave(false);
     updateHud();
   }
 
@@ -417,7 +421,7 @@ rerollButton.addEventListener("click", () => {
 
 stepButton.addEventListener("click", () => {
   state.nextSpawnDelay = 0;
-  spawnWave(true);
+  spawnWave(false);
 });
 
 window.addEventListener("resize", resizeCanvas);
