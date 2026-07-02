@@ -47,7 +47,7 @@ const OFFSET_SCALE = 0.12;
 const LENGTH_SCALE = 0.22;
 const BASE_DISTANCE = 720;
 const MIN_WALL_LENGTH = 28;
-const PATTERN_GAP = 420;
+const ORIGINAL_TICK_MS = 1000 / 60;
 
 function wall(side, offset = 0, length = 200, flags = 0) {
   const normalized = ((side % SIDES) + SIDES) % SIDES;
@@ -194,7 +194,7 @@ const state = {
   seed: 123,
   rng: new Rng(123),
   walls: [],
-  nextSpawnDistance: 0,
+  nextSpawnDelay: 0,
   rotation: 0,
   paletteIndex: 0,
   lastTime: performance.now()
@@ -232,18 +232,16 @@ function resetRun() {
   state.rank = 0;
   state.waveCount = 0;
   state.walls = [];
-  state.nextSpawnDistance = 0;
+  state.nextSpawnDelay = 0;
 }
 
 function spawnWave(force = false) {
-  if (!force && state.nextSpawnDistance > 0) return;
+  if (!force && state.nextSpawnDelay > 0) return;
   const wave = nextWave(state.levelIndex, Math.floor(state.rank), state.rng);
-  let patternSpan = 0;
   for (let index = 0; index < wave.walls.length; index += 1) {
     const wallDef = wave.walls[index];
     const distance = BASE_DISTANCE + wallDef.offset * OFFSET_SCALE;
     const length = Math.max(MIN_WALL_LENGTH, wallDef.length * LENGTH_SCALE);
-    patternSpan = Math.max(patternSpan, distance + length - BASE_DISTANCE);
     state.walls.push({
       side: wallDef.side,
       distance,
@@ -252,10 +250,10 @@ function spawnWave(force = false) {
       hue: (state.waveCount + index) % 3
     });
   }
-  state.nextSpawnDistance = patternSpan + PATTERN_GAP;
+  state.nextSpawnDelay = wave.delay * ORIGINAL_TICK_MS;
   state.waveCount += 1;
   state.rank = Math.min(12, state.rank + 0.2);
-  state.currentWave = { ...wave, spacing: Math.round(state.nextSpawnDistance) };
+  state.currentWave = wave;
   updateHud();
 }
 
@@ -266,7 +264,7 @@ function updateHud() {
   waveLabel.textContent = `wave ${state.waveCount}`;
   wallLabel.textContent = `${state.walls.length} walls`;
   patternName.textContent = state.currentWave ? state.currentWave.name : "ready";
-  delayLabel.textContent = state.currentWave ? String(state.currentWave.spacing) : "0";
+  delayLabel.textContent = state.currentWave ? String(state.currentWave.delay) : "0";
   rotationLabel.textContent = level.rotation % 2 ? "clockwise" : "counter";
 }
 
@@ -382,7 +380,7 @@ function update(now) {
     const tempo = Number(tempoRange.value);
     const scroll = tempo * 0.025 * dt;
     state.rotation += (level.rotation * 0.00032 * dt) * (level.rotation % 2 ? 1 : -1);
-    state.nextSpawnDistance -= scroll;
+    state.nextSpawnDelay -= dt;
     spawnWave(false);
     for (const obstacle of state.walls) {
       obstacle.distance -= scroll;
@@ -418,7 +416,7 @@ rerollButton.addEventListener("click", () => {
 });
 
 stepButton.addEventListener("click", () => {
-  state.nextSpawnDistance = 0;
+  state.nextSpawnDelay = 0;
   spawnWave(true);
 });
 
