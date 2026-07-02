@@ -43,6 +43,12 @@ const PALETTES = [
   ["#101010", "#f72585", "#4cc9f0", "#fee440", "#f8f9fa"]
 ];
 
+const OFFSET_SCALE = 0.12;
+const LENGTH_SCALE = 0.22;
+const BASE_DISTANCE = 720;
+const MIN_WALL_LENGTH = 28;
+const PATTERN_GAP = 420;
+
 function wall(side, offset = 0, length = 200, flags = 0) {
   const normalized = ((side % SIDES) + SIDES) % SIDES;
   return { side: normalized, offset, length, flags };
@@ -188,7 +194,7 @@ const state = {
   seed: 123,
   rng: new Rng(123),
   walls: [],
-  nextSpawn: 0,
+  nextSpawnDistance: 0,
   rotation: 0,
   paletteIndex: 0,
   lastTime: performance.now()
@@ -226,25 +232,30 @@ function resetRun() {
   state.rank = 0;
   state.waveCount = 0;
   state.walls = [];
-  state.nextSpawn = 0;
+  state.nextSpawnDistance = 0;
 }
 
 function spawnWave(force = false) {
-  if (!force && state.nextSpawn > 0) return;
+  if (!force && state.nextSpawnDistance > 0) return;
   const wave = nextWave(state.levelIndex, Math.floor(state.rank), state.rng);
-  const baseDistance = 720;
-  for (const wallDef of wave.walls) {
+  let patternSpan = 0;
+  for (let index = 0; index < wave.walls.length; index += 1) {
+    const wallDef = wave.walls[index];
+    const distance = BASE_DISTANCE + wallDef.offset * OFFSET_SCALE;
+    const length = Math.max(MIN_WALL_LENGTH, wallDef.length * LENGTH_SCALE);
+    patternSpan = Math.max(patternSpan, distance + length - BASE_DISTANCE);
     state.walls.push({
       side: wallDef.side,
-      distance: baseDistance + wallDef.offset * 0.12,
-      length: Math.max(28, wallDef.length * 0.22),
-      hue: state.waveCount % 3
+      distance,
+      length,
+      pattern: state.waveCount,
+      hue: (state.waveCount + index) % 3
     });
   }
-  state.nextSpawn = wave.delay * 7;
+  state.nextSpawnDistance = patternSpan + PATTERN_GAP;
   state.waveCount += 1;
   state.rank = Math.min(12, state.rank + 0.2);
-  state.currentWave = wave;
+  state.currentWave = { ...wave, spacing: Math.round(state.nextSpawnDistance) };
   updateHud();
 }
 
@@ -255,7 +266,7 @@ function updateHud() {
   waveLabel.textContent = `wave ${state.waveCount}`;
   wallLabel.textContent = `${state.walls.length} walls`;
   patternName.textContent = state.currentWave ? state.currentWave.name : "ready";
-  delayLabel.textContent = state.currentWave ? String(state.currentWave.delay) : "0";
+  delayLabel.textContent = state.currentWave ? String(state.currentWave.spacing) : "0";
   rotationLabel.textContent = level.rotation % 2 ? "clockwise" : "counter";
 }
 
@@ -371,7 +382,7 @@ function update(now) {
     const tempo = Number(tempoRange.value);
     const scroll = tempo * 0.025 * dt;
     state.rotation += (level.rotation * 0.00032 * dt) * (level.rotation % 2 ? 1 : -1);
-    state.nextSpawn -= dt;
+    state.nextSpawnDistance -= scroll;
     spawnWave(false);
     for (const obstacle of state.walls) {
       obstacle.distance -= scroll;
@@ -407,7 +418,7 @@ rerollButton.addEventListener("click", () => {
 });
 
 stepButton.addEventListener("click", () => {
-  state.nextSpawn = 0;
+  state.nextSpawnDistance = 0;
   spawnWave(true);
 });
 
