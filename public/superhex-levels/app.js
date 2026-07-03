@@ -194,6 +194,7 @@ const state = {
   seed: 123,
   rng: new Rng(123),
   walls: [],
+  pendingWave: null,
   nextSpawnDelay: 0,
   rotation: 0,
   paletteIndex: 0,
@@ -232,28 +233,58 @@ function resetRun() {
   state.rank = 0;
   state.waveCount = 0;
   state.walls = [];
+  state.pendingWave = null;
   state.nextSpawnDelay = 0;
 }
 
-function activePatternClear() {
-  return state.walls.length === 0;
+function wallMetrics(wallDef) {
+  const distance = BASE_DISTANCE + wallDef.offset * OFFSET_SCALE;
+  const length = Math.max(MIN_WALL_LENGTH, wallDef.length * LENGTH_SCALE);
+  return { distance, length };
+}
+
+function getPendingWave() {
+  if (!state.pendingWave) {
+    state.pendingWave = nextWave(state.levelIndex, Math.floor(state.rank), state.rng);
+  }
+  return state.pendingWave;
+}
+
+function waveRange(wave) {
+  let inner = Infinity;
+  let outer = -Infinity;
+  for (const wallDef of wave.walls) {
+    const wall = wallMetrics(wallDef);
+    inner = Math.min(inner, wall.distance);
+    outer = Math.max(outer, wall.distance + wall.length);
+  }
+  return { inner, outer };
+}
+
+function rangeOverlapsActiveWalls(range) {
+  for (const obstacle of state.walls) {
+    const inner = obstacle.distance;
+    const outer = obstacle.distance + obstacle.length;
+    if (inner < range.outer && outer > range.inner) return true;
+  }
+  return false;
 }
 
 function spawnWave(force = false) {
-  if (!force && (state.nextSpawnDelay > 0 || !activePatternClear())) return;
-  const wave = nextWave(state.levelIndex, Math.floor(state.rank), state.rng);
+  const wave = getPendingWave();
+  if (!force && (state.nextSpawnDelay > 0 || rangeOverlapsActiveWalls(waveRange(wave)))) return;
   for (let index = 0; index < wave.walls.length; index += 1) {
     const wallDef = wave.walls[index];
-    const distance = BASE_DISTANCE + wallDef.offset * OFFSET_SCALE;
-    const length = Math.max(MIN_WALL_LENGTH, wallDef.length * LENGTH_SCALE);
+    const wall = wallMetrics(wallDef);
     state.walls.push({
       side: wallDef.side,
-      distance,
-      length,
+      distance: wall.distance,
+      length: wall.length,
       pattern: state.waveCount,
       hue: state.waveCount % 3
     });
   }
+  state.pendingWave = null;
   state.nextSpawnDelay = wave.delay * ORIGINAL_TICK_MS;
   state.waveCount += 1;
   state.rank = Math.min(12, state.rank + 0.2);
