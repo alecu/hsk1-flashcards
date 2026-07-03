@@ -143,6 +143,11 @@ input[type="number"]:focus {
   border-color: var(--accent);
 }
 
+select option {
+  color: var(--ink);
+  background: var(--panel-solid);
+}
+
 input[type="range"] {
   width: 100%;
   accent-color: var(--accent);

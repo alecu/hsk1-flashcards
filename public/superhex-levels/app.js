@@ -51,9 +51,9 @@ const PALETTES = [
 ];
 
 const OFFSET_SCALE = 0.12;
-const LENGTH_SCALE = 0.22;
+const LENGTH_SCALE = 0.11;
 const BASE_DISTANCE = 720;
-const MIN_WALL_LENGTH = 28;
+const MIN_WALL_LENGTH = 14;
 const ORIGINAL_TICK_MS = 1000 / 60;
 
 function wall(side, offset = 0, length = 200, flags = 0) {
@@ -297,16 +297,18 @@ const state = {
   lastTime: performance.now()
 };
 
-const randomOption = document.createElement("option");
-randomOption.value = "-1";
-randomOption.textContent = "Random patterns";
-patternSelect.append(randomOption);
+if (patternSelect.options.length === 0) {
+  const randomOption = document.createElement("option");
+  randomOption.value = "-1";
+  randomOption.textContent = "Random patterns";
+  patternSelect.append(randomOption);
 
-for (let index = 0; index < FAMILY_NAMES.length; index += 1) {
-  const option = document.createElement("option");
-  option.value = String(index);
-  option.textContent = FAMILY_NAMES[index];
-  patternSelect.append(option);
+  for (let index = 0; index < FAMILY_NAMES.length; index += 1) {
+    const option = document.createElement("option");
+    option.value = String(index);
+    option.textContent = FAMILY_NAMES[index];
+    patternSelect.append(option);
+  }
 }
 
 for (let index = 0; index < LEVELS.length; index += 1) {
