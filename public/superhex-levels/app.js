@@ -156,9 +156,11 @@ function makeWave(kind, rng, rank = 0) {
   return { delay: 95, name: FAMILY_NAMES[kind], walls: comb(start, 6, 420, 230) };
 }
 
-function nextWave(levelIndex, rank, rng) {
+function nextWave(levelIndex, rank, rng, selectedKind = -1) {
   const level = LEVELS[levelIndex % LEVELS.length];
-  const kind = level.families[rng.rand(level.families.length)];
+  const kind = selectedKind >= 0 && selectedKind < FAMILY_NAMES.length
+    ? selectedKind
+    : level.families[rng.rand(level.families.length)];
   const wave = makeWave(kind, rng, rank);
   return {
     level,
@@ -171,6 +173,7 @@ function nextWave(levelIndex, rank, rng) {
 
 const canvas = document.getElementById("hexCanvas");
 const ctx = canvas.getContext("2d");
+const patternSelect = document.getElementById("patternSelect");
 const levelSelect = document.getElementById("levelSelect");
 const tempoRange = document.getElementById("tempoRange");
 const seedInput = document.getElementById("seedInput");
@@ -190,6 +193,7 @@ const state = {
   levelIndex: 0,
   rank: 0,
   waveCount: 0,
+  patternKind: -1,
   paused: false,
   seed: 123,
   rng: new Rng(123),
@@ -200,6 +204,18 @@ const state = {
   paletteIndex: 0,
   lastTime: performance.now()
 };
+
+const randomOption = document.createElement("option");
+randomOption.value = "-1";
+randomOption.textContent = "Random patterns";
+patternSelect.append(randomOption);
+
+for (let index = 0; index < FAMILY_NAMES.length; index += 1) {
+  const option = document.createElement("option");
+  option.value = String(index);
+  option.textContent = FAMILY_NAMES[index];
+  patternSelect.append(option);
+}
 
 for (let index = 0; index < LEVELS.length; index += 1) {
   const option = document.createElement("option");
@@ -245,7 +261,7 @@ function wallMetrics(wallDef) {
 
 function getPendingWave() {
   if (!state.pendingWave) {
-    state.pendingWave = nextWave(state.levelIndex, Math.floor(state.rank), state.rng);
+    state.pendingWave = nextWave(state.levelIndex, Math.floor(state.rank), state.rng, state.patternKind);
   }
   return state.pendingWave;
 }
@@ -430,6 +446,12 @@ function update(now) {
 
 levelSelect.addEventListener("change", () => {
   state.levelIndex = Number(levelSelect.value);
+  resetRun();
+  spawnWave(true);
+});
+
+patternSelect.addEventListener("change", () => {
+  state.patternKind = Number(patternSelect.value);
   resetRun();
   spawnWave(true);
 });
