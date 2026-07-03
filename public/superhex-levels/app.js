@@ -17,12 +17,12 @@ class Rng {
 }
 
 const LEVELS = [
-  { name: "Line", speed: 34, rotation: 1, families: [0, 1, 3] },
-  { name: "Triangle", speed: 38, rotation: 2, families: [0, 1, 2, 3] },
-  { name: "Square", speed: 42, rotation: 3, families: [1, 2, 3, 5] },
-  { name: "Pentagon", speed: 46, rotation: 4, families: [0, 2, 4, 5] },
-  { name: "Hexagon", speed: 50, rotation: 5, families: [2, 3, 4, 5, 6] },
-  { name: "Hyper", speed: 56, rotation: 6, families: [0, 1, 2, 3, 4, 5, 6] }
+  { name: "Line", speed: 34, rotation: 1, families: [0, 1, 3, 13] },
+  { name: "Triangle", speed: 38, rotation: 2, families: [0, 1, 2, 3, 7, 13] },
+  { name: "Square", speed: 42, rotation: 3, families: [1, 2, 3, 5, 8, 10, 13] },
+  { name: "Pentagon", speed: 46, rotation: 4, families: [0, 2, 4, 5, 8, 9, 10, 11] },
+  { name: "Hexagon", speed: 50, rotation: 5, families: [2, 3, 4, 5, 6, 7, 8, 10, 11, 12] },
+  { name: "Hyper", speed: 56, rotation: 6, families: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13] }
 ];
 
 const FAMILY_NAMES = [
@@ -32,7 +32,14 @@ const FAMILY_NAMES = [
   "staircase",
   "corridor",
   "pinwheel",
-  "comb"
+  "comb",
+  "gate stack",
+  "twin rails",
+  "switchback",
+  "length sweep",
+  "hourglass",
+  "snake corridor",
+  "short bursts"
 ];
 
 const PALETTES = [
@@ -144,6 +151,84 @@ function comb(start = 0, rows = 6, step = 450, length = 240) {
   return out;
 }
 
+function gateStack(start = 0, rows = 6, step = 540, length = 220, direction = 1) {
+  const out = [];
+  for (let row = 0; row < rows; row += 1) {
+    const gap = start + row * direction;
+    out.push(...ringTwoGaps(gap, gap + 2, row * step, length));
+  }
+  return out;
+}
+
+function twinRails(start = 0, rows = 5, step = 720, railLength = 3400, toothLength = 260) {
+  const out = [wall(start, 0, railLength), wall(start + 3, 0, railLength)];
+  for (let row = 0; row < rows; row += 1) {
+    const side = start + (row & 1 ? 2 : 1);
+    const offset = row * step;
+    out.push(wall(side, offset, toothLength));
+    out.push(wall(side + 3, offset, toothLength));
+  }
+  return out;
+}
+
+function switchback(start = 0, rows = 4, step = 920, length = 260, direction = 1) {
+  const out = [wall(start + 5, 0, rows * step + length)];
+  for (let row = 0; row < rows; row += 1) {
+    const offset = row * step;
+    const base = start + row * direction;
+    out.push(...ringTwoGaps(base, base + 1, offset, length));
+  }
+  return out;
+}
+
+function lengthSweep(start = 0, rows = 11, step = 190, direction = 1) {
+  const out = [];
+  for (let row = 0; row < rows; row += 1) {
+    const side = start + row * direction;
+    const offset = row * step;
+    const taper = row < rows / 2 ? row : rows - row - 1;
+    out.push(wall(side, offset, 260 + taper * 150));
+  }
+  return out;
+}
+
+function hourglass(start = 0, rows = 4, step = 620) {
+  const out = [];
+  for (let row = 0; row < rows; row += 1) {
+    const offset = row * step;
+    const length = 260 + Math.abs(row - 1.5) * 380;
+    out.push(wall(start, offset, length));
+    out.push(wall(start + 1, offset + 180, length + 220));
+    out.push(wall(start + 5, offset + 180, length + 220));
+    out.push(wall(start + 3, offset + 360, length));
+  }
+  return out;
+}
+
+function snakeCorridor(start = 0, rows = 5, step = 1050, direction = 1) {
+  const out = [wall(start, 0, rows * step + 600), wall(start + 5, 0, rows * step + 600)];
+  for (let row = 0; row < rows; row += 1) {
+    const offset = row * step;
+    const side = start + 1 + (row & 1 ? 2 : 0) * direction;
+    out.push(wall(side, offset, 240 + (row & 1 ? 220 : 0)));
+    out.push(wall(side + direction, offset, 440));
+    out.push(wall(side + direction * 2, offset, 640 - (row & 1 ? 220 : 0)));
+  }
+  return out;
+}
+
+function shortBursts(start = 0, rows = 3, step = 340, length = 220) {
+  const out = [];
+  for (let row = 0; row < rows; row += 1) {
+    const offset = row * step;
+    const side = start + row;
+    out.push(wall(side, offset, length));
+    out.push(wall(side + 2, offset, length));
+    if (row !== 1) out.push(wall(side + 4, offset, length));
+  }
+  return out;
+}
+
 function makeWave(kind, rng, rank = 0) {
   const start = rng.rand(SIDES);
   const direction = rng.rand(2) === 0 ? 1 : -1;
@@ -153,7 +238,14 @@ function makeWave(kind, rng, rank = 0) {
   if (kind === 3) return { delay: 85, name: FAMILY_NAMES[kind], walls: staircase(start, 12 + rank, 210, 300, direction) };
   if (kind === 4) return { delay: 130, name: FAMILY_NAMES[kind], walls: longCorridor(start, start + 3, 2800 + rank * 220) };
   if (kind === 5) return { delay: 80, name: FAMILY_NAMES[kind], walls: pinwheel(start, 7, 440, 250, direction) };
-  return { delay: 95, name: FAMILY_NAMES[kind], walls: comb(start, 6, 420, 230) };
+  if (kind === 6) return { delay: 95, name: FAMILY_NAMES[kind], walls: comb(start, 6, 420, 230) };
+  if (kind === 7) return { delay: 100, name: FAMILY_NAMES[kind], walls: gateStack(start, 6, 540, 220, direction) };
+  if (kind === 8) return { delay: 120, name: FAMILY_NAMES[kind], walls: twinRails(start, 5, 720, 3300, 260) };
+  if (kind === 9) return { delay: 120, name: FAMILY_NAMES[kind], walls: switchback(start, 4, 920, 260, direction) };
+  if (kind === 10) return { delay: 110, name: FAMILY_NAMES[kind], walls: lengthSweep(start, 12, 190, direction) };
+  if (kind === 11) return { delay: 100, name: FAMILY_NAMES[kind], walls: hourglass(start, 4, 620) };
+  if (kind === 12) return { delay: 175, name: FAMILY_NAMES[kind], walls: snakeCorridor(start, 5, 1050, direction) };
+  return { delay: 35, name: FAMILY_NAMES[kind], walls: shortBursts(start, 3 + rng.rand(2), 340, 220 + rng.rand(2) * 180) };
 }
 
 function nextWave(levelIndex, rank, rng, selectedKind = -1) {
