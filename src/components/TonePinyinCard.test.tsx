@@ -174,15 +174,15 @@ describe("TonePinyinCard", () => {
     expect(container.querySelectorAll(".syllable-block")).toHaveLength(1);
   });
 
-  it("uses hanzi and pinyin as syllable audio triggers when enabled", () => {
-    const onPlaySyllable = vi.fn();
+  it("uses hanzi and pinyin as full-word audio triggers when enabled", () => {
+    const onPlayWord = vi.fn();
 
     render(
       <TonePinyinCard
         card={dadCard}
         audioEnabled
         colorTones
-        onPlaySyllable={onPlaySyllable}
+        onPlayWord={onPlayWord}
         revealSpanish={false}
         showPinyin
       />,
@@ -197,7 +197,6 @@ describe("TonePinyinCard", () => {
     fireEvent.click(hanziButtons[0]);
     fireEvent.click(pinyinButtons[0]);
 
-    expect(onPlaySyllable).toHaveBeenNthCalledWith(1, 0);
-    expect(onPlaySyllable).toHaveBeenNthCalledWith(2, 0);
+    expect(onPlayWord).toHaveBeenCalledTimes(2);
   });
 });

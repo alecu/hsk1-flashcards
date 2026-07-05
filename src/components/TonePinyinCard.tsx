@@ -7,7 +7,7 @@ type TonePinyinCardProps = {
   colorTones: boolean;
   compactSpanish?: boolean;
   hideSpanishLabel?: boolean;
-  onPlaySyllable?: (index: number) => void;
+  onPlayWord?: () => void;
   plainPinyin?: boolean;
   revealSpanish?: boolean;
   showPinyin: boolean;
@@ -19,7 +19,7 @@ export function TonePinyinCard({
   colorTones,
   compactSpanish = false,
   hideSpanishLabel = false,
-  onPlaySyllable,
+  onPlayWord,
   plainPinyin = false,
   revealSpanish = false,
   showPinyin,
@@ -36,7 +36,7 @@ export function TonePinyinCard({
               <button
                 type="button"
                 className="syllable-audio-trigger hanzi-char"
-                onClick={() => onPlaySyllable?.(index)}
+                onClick={onPlayWord}
               >
                 {syllable.hanzi || syllable.prompt}
               </button>
@@ -49,7 +49,7 @@ export function TonePinyinCard({
                   type="button"
                   className={`pinyin syllable-audio-trigger ${plainPinyin ? "pinyin-plain" : ""}`}
                   data-tone={colorTones ? syllable.tone : 0}
-                  onClick={() => onPlaySyllable?.(index)}
+                  onClick={onPlayWord}
                 >
                   {plainPinyin
                     ? plainPinyinFromNumericSyllable(syllable.pinyinNumber)

@@ -6,7 +6,6 @@ import {
 } from "../lib/pinyin";
 import {
   buildSpeechTextFromCard,
-  buildSpeechTextFromSyllable,
   speakChineseText,
   stopChineseSpeech,
 } from "../lib/speech";
@@ -124,10 +123,8 @@ export function SessionScreen({
           colorTones={isToneMode ? feedback !== null : settings.colorTones}
           compactSpanish={isToneFeedbackVisible}
           hideSpanishLabel={isToneFeedbackVisible}
-          onPlaySyllable={(index) =>
-            speakChineseText(
-              buildSpeechTextFromSyllable(session.currentCard.syllables[index]),
-            )
+          onPlayWord={() =>
+            speakChineseText(buildSpeechTextFromCard(session.currentCard))
           }
           plainPinyin={isToneMode && feedback === null}
           revealSpanish={feedback !== null}
