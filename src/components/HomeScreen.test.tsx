@@ -122,6 +122,39 @@ describe("HomeScreen", () => {
     expect(onCustomRowDelete).toHaveBeenCalledWith(0);
   });
 
+  it("allows deleting the last row and adding a new one", () => {
+    const onCustomRowDelete = vi.fn();
+    const onCustomRowAdd = vi.fn();
+
+    render(
+      <HomeScreen
+        activeVocabularySet="custom"
+        allCards={cards}
+        totalCards={1}
+        mistakeCards={0}
+        customDeckErrors={[]}
+        customRows={[{ hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" }]}
+        progress={{}}
+        progressByMode={defaultProgressByMode()}
+        settings={settings}
+        onVocabularySetChange={vi.fn()}
+        onCustomRowChange={vi.fn()}
+        onCustomRowDelete={onCustomRowDelete}
+        onCustomRowAdd={onCustomRowAdd}
+        onRoundSizeChange={vi.fn()}
+        onToggleSetting={vi.fn()}
+        onStart={vi.fn()}
+      />,
+    );
+
+    fireEvent.click(screen.getByRole("button", { name: "Editar lista" }));
+    fireEvent.click(screen.getByRole("button", { name: "Borrar" }));
+    fireEvent.click(screen.getByRole("button", { name: "Agregar fila" }));
+
+    expect(onCustomRowDelete).toHaveBeenCalledWith(0);
+    expect(onCustomRowAdd).toHaveBeenCalledTimes(1);
+  });
+
   it("opens advanced stats and lets the user sort by pinyin", () => {
     const progressByMode = defaultProgressByMode();
     progressByMode.typing.plane = {

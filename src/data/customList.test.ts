@@ -67,6 +67,34 @@ describe("custom vocabulary deck", () => {
     expect(serializeCustomWordRows(rows)).toBe("\tfei1ji1\tavión\n\tzai4\testar");
   });
 
+  it("keeps one blank editor row when the custom list is empty", () => {
+    expect(parseCustomWordRows("")).toEqual([
+      { hanzi: "", pinyin: "", spanish: "" },
+    ]);
+  });
+
+  it("preserves blank editor rows but ignores them when building cards", () => {
+    const serialized = serializeCustomWordRows([
+      { hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" },
+      { hanzi: "", pinyin: "", spanish: "" },
+    ]);
+
+    expect(serialized).toBe("飞机\tfei1ji1\tavión\n\t\t");
+    expect(parseCustomWordRows(serialized)).toEqual([
+      { hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" },
+      { hanzi: "", pinyin: "", spanish: "" },
+    ]);
+    expect(parseCustomWordList(serialized)).toMatchObject({
+      errors: [],
+      cards: [
+        expect.objectContaining({
+          hanzi: "飞机",
+          spanish: "avión",
+        }),
+      ],
+    });
+  });
+
   it("reports invalid rows clearly", () => {
     const parsed = parseCustomWordList("solo una linea sin tabs");
 

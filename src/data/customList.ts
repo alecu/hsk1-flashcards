@@ -13,6 +13,12 @@ export type CustomWordRow = {
   spanish: string;
 };
 
+const emptyCustomWordRow: CustomWordRow = {
+  hanzi: "",
+  pinyin: "",
+  spanish: "",
+};
+
 const defaultCustomWordRows: CustomWordRow[] = [
   { hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" },
   { hanzi: "出租车", pinyin: "chu1zu1che1", spanish: "taxi" },
@@ -210,10 +216,10 @@ function buildCardFromVariant(
 }
 
 export function parseCustomWordRows(source: string) {
-  return source
+  const rows = source
     .split(/\r?\n/)
-    .map((rawLine) => rawLine.replace(/\s+$/, ""))
-    .filter((line) => line.trim().length > 0)
+    .map((rawLine) => rawLine.replace(/[ ]+$/, ""))
+    .filter((line) => line.length > 0)
     .map((line) => {
       const columns = line.split("\t");
 
@@ -239,11 +245,16 @@ export function parseCustomWordRows(source: string) {
         spanish: line.trim(),
       } satisfies CustomWordRow;
     });
+
+  return rows.length > 0 ? rows : [{ ...emptyCustomWordRow }];
 }
 
 export function serializeCustomWordRows(rows: CustomWordRow[]) {
+  if (rows.length === 0) {
+    return "";
+  }
+
   return rows
-    .filter((row) => row.hanzi.trim() || row.pinyin.trim() || row.spanish.trim())
     .map((row) =>
       [row.hanzi.trim(), row.pinyin.trim(), row.spanish.trim()].join("\t"),
     )
@@ -256,6 +267,10 @@ export function parseCustomWordList(source: string): ParsedCustomList {
   const errors: string[] = [];
 
   rows.forEach((row, index) => {
+    if (!row.hanzi && !row.pinyin && !row.spanish) {
+      return;
+    }
+
     if (!row.pinyin || !row.spanish) {
       errors.push(`Línea ${index + 1}: formato incompleto.`);
       return;

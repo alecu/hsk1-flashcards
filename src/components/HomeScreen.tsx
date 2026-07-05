@@ -386,7 +386,6 @@ export function HomeScreen({
                             type="button"
                             className="ghost-button custom-delete-button"
                             onClick={() => onCustomRowDelete(index)}
-                            disabled={customRows.length === 1}
                           >
                             Borrar
                           </button>
