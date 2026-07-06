@@ -64,7 +64,7 @@ describe("custom vocabulary deck", () => {
       { hanzi: "", pinyin: "zai4", spanish: "estar" },
     ]);
 
-    expect(serializeCustomWordRows(rows)).toBe("\tfei1ji1\tavión\n\tzai4\testar");
+    expect(serializeCustomWordRows(rows)).toBe(";fei1ji1;avión\n;zai4;estar");
   });
 
   it("keeps one blank editor row when the custom list is empty", () => {
@@ -79,7 +79,7 @@ describe("custom vocabulary deck", () => {
       { hanzi: "", pinyin: "", spanish: "" },
     ]);
 
-    expect(serialized).toBe("飞机\tfei1ji1\tavión\n\t\t");
+    expect(serialized).toBe("飞机;fei1ji1;avión\n;;");
     expect(parseCustomWordRows(serialized)).toEqual([
       { hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" },
       { hanzi: "", pinyin: "", spanish: "" },

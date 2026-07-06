@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { HomeScreen } from "./components/HomeScreen";
 import { ResultsScreen } from "./components/ResultsScreen";
 import { SessionScreen } from "./components/SessionScreen";
-import { vocabularyDecks } from "./data/cards";
+import { hsk20Cards, hsk30Cards, vocabularyDecks } from "./data/cards";
 import {
   buildCustomDeck,
   parseCustomWordRows,
@@ -24,6 +24,12 @@ import {
   saveState,
 } from "./lib/storage";
 import { aggregateProgressByCards } from "./lib/progress";
+import {
+  exportVocabularyCsv,
+  importVocabularyCsv,
+  mergeImportedProgress,
+  type ExportScope,
+} from "./lib/csvExchange";
 import type {
   Card,
   ProgressByMode,
@@ -54,6 +60,7 @@ export default function App() {
   const [screenState, setScreenState] = useState<ScreenState>({ name: "home" });
   const [draft, setDraft] = useState("");
   const [feedback, setFeedback] = useState<Feedback>(null);
+  const [importFeedback, setImportFeedback] = useState<string | null>(null);
   const [pendingResult, setPendingResult] = useState<"correct" | "incorrect" | null>(
     null,
   );
@@ -75,6 +82,14 @@ export default function App() {
       ? customDeck
       : vocabularyDecks[persistedState.settings.vocabularySet];
   const activeCards = activeDeck.cards;
+  const cardsBySet = useMemo(
+    () => ({
+      hsk20: hsk20Cards,
+      hsk30: hsk30Cards,
+      custom: customDeck.cards,
+    }),
+    [customDeck.cards],
+  );
   const aggregateProgress = useMemo(
     () => aggregateProgressByCards(persistedState.progress),
     [persistedState.progress],
@@ -176,6 +191,43 @@ export default function App() {
       ...current,
       settings: nextSettings,
     }));
+  };
+
+  const handleExportCsv = (scope: ExportScope) => {
+    const content = exportVocabularyCsv({
+      cardsBySet,
+      customRows,
+      progressByMode: persistedState.progress,
+      scope,
+    });
+    const filename = `jinbai-${scope}-${new Date().toISOString().slice(0, 10)}.csv`;
+
+    return { content, filename };
+  };
+
+  const handleImportCsv = (source: string) => {
+    const imported = importVocabularyCsv(source);
+    const replaceCustomProgress = imported.customRows.length > 0;
+
+    setPersistedState((current) => ({
+      ...current,
+      settings: {
+        ...current.settings,
+        customWordList:
+          imported.customRows.length > 0
+            ? serializeCustomWordRows(imported.customRows)
+            : current.settings.customWordList,
+      },
+      progress: mergeImportedProgress({
+        current: current.progress,
+        imported: imported.progressByMode,
+        replaceCustomProgress,
+      }),
+    }));
+
+    setImportFeedback(
+      `Importado: ${imported.customRows.length} filas custom y estadísticas por modo.`,
+    );
   };
 
   const commitAnswer = (
@@ -331,13 +383,17 @@ export default function App() {
       allCards={activeCards as Card[]}
       progress={aggregateProgress}
       progressByMode={persistedState.progress as ProgressByMode}
+      importFeedback={importFeedback}
       settings={persistedState.settings}
+      onClearImportFeedback={() => setImportFeedback(null)}
       onVocabularySetChange={(value) =>
         handleSettingsChange({
           ...persistedState.settings,
           vocabularySet: value,
         })
       }
+      onExportCsv={handleExportCsv}
+      onImportCsv={handleImportCsv}
       onCustomRowChange={(rowIndex, key, value) => {
         const nextRows = [...customRows];
         const currentRow = nextRows[rowIndex] ?? {

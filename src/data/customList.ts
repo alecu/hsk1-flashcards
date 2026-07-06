@@ -4,6 +4,7 @@ import {
   segmentHanziBySyllables,
   splitNumericPinyinSyllables,
 } from "../lib/pinyin";
+import { parseCsvLine, serializeCsvRow } from "../lib/csv";
 import { normalizeAnswer } from "../lib/text";
 import type { Card } from "../types/cards";
 
@@ -221,13 +222,33 @@ export function parseCustomWordRows(source: string) {
     .map((rawLine) => rawLine.replace(/[ ]+$/, ""))
     .filter((line) => line.length > 0)
     .map((line) => {
-      const columns = line.split("\t");
+      if (line.includes("\t")) {
+        const columns = line.split("\t");
+
+        if (columns.length >= 3) {
+          return {
+            hanzi: columns[0].trim(),
+            pinyin: columns[1].trim(),
+            spanish: columns.slice(2).join("\t").trim(),
+          } satisfies CustomWordRow;
+        }
+
+        if (columns.length === 2) {
+          return {
+            hanzi: "",
+            pinyin: columns[0].trim(),
+            spanish: columns[1].trim(),
+          } satisfies CustomWordRow;
+        }
+      }
+
+      const columns = parseCsvLine(line);
 
       if (columns.length >= 3) {
         return {
           hanzi: columns[0].trim(),
           pinyin: columns[1].trim(),
-          spanish: columns.slice(2).join("\t").trim(),
+          spanish: columns.slice(2).join(";").trim(),
         } satisfies CustomWordRow;
       }
 
@@ -256,7 +277,7 @@ export function serializeCustomWordRows(rows: CustomWordRow[]) {
 
   return rows
     .map((row) =>
-      [row.hanzi.trim(), row.pinyin.trim(), row.spanish.trim()].join("\t"),
+      serializeCsvRow([row.hanzi.trim(), row.pinyin.trim(), row.spanish.trim()]),
     )
     .join("\n");
 }

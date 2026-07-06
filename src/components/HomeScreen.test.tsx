@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { HomeScreen } from "./HomeScreen";
 import { defaultCustomWordList } from "../data/customList";
 import { defaultProgressByMode } from "../lib/progress";
+import type { ExportScope } from "../lib/csvExchange";
 import type { Card, UserSettings } from "../types/cards";
 
 const cards: Card[] = [
@@ -39,6 +40,11 @@ const settings: UserSettings = {
   customWordList: defaultCustomWordList,
 };
 
+const exportCsvMock = (_scope: ExportScope) => ({
+  content: "record_type;vocabulary_set",
+  filename: "test.csv",
+});
+
 describe("HomeScreen", () => {
   it("keeps the custom editor closed by default", () => {
     render(
@@ -46,6 +52,7 @@ describe("HomeScreen", () => {
         activeVocabularySet="custom"
         allCards={cards}
         totalCards={12}
+        importFeedback={null}
         mistakeCards={0}
         customDeckErrors={[]}
         customRows={[
@@ -60,6 +67,9 @@ describe("HomeScreen", () => {
         onCustomRowDelete={vi.fn()}
         onCustomRowAdd={vi.fn()}
         onRoundSizeChange={vi.fn()}
+        onClearImportFeedback={vi.fn()}
+        onExportCsv={exportCsvMock}
+        onImportCsv={vi.fn()}
         onToggleSetting={vi.fn()}
         onStart={vi.fn()}
       />,
@@ -83,6 +93,7 @@ describe("HomeScreen", () => {
         activeVocabularySet="custom"
         allCards={cards}
         totalCards={12}
+        importFeedback={null}
         mistakeCards={0}
         customDeckErrors={[]}
         customRows={[
@@ -97,6 +108,9 @@ describe("HomeScreen", () => {
         onCustomRowDelete={onCustomRowDelete}
         onCustomRowAdd={onCustomRowAdd}
         onRoundSizeChange={vi.fn()}
+        onClearImportFeedback={vi.fn()}
+        onExportCsv={exportCsvMock}
+        onImportCsv={vi.fn()}
         onToggleSetting={vi.fn()}
         onStart={vi.fn()}
       />,
@@ -131,6 +145,7 @@ describe("HomeScreen", () => {
         activeVocabularySet="custom"
         allCards={cards}
         totalCards={1}
+        importFeedback={null}
         mistakeCards={0}
         customDeckErrors={[]}
         customRows={[{ hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" }]}
@@ -142,6 +157,9 @@ describe("HomeScreen", () => {
         onCustomRowDelete={onCustomRowDelete}
         onCustomRowAdd={onCustomRowAdd}
         onRoundSizeChange={vi.fn()}
+        onClearImportFeedback={vi.fn()}
+        onExportCsv={exportCsvMock}
+        onImportCsv={vi.fn()}
         onToggleSetting={vi.fn()}
         onStart={vi.fn()}
       />,
@@ -174,6 +192,7 @@ describe("HomeScreen", () => {
         activeVocabularySet="custom"
         allCards={cards}
         totalCards={1}
+        importFeedback={null}
         mistakeCards={1}
         customDeckErrors={[]}
         customRows={[{ hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" }]}
@@ -187,6 +206,9 @@ describe("HomeScreen", () => {
         onCustomRowDelete={vi.fn()}
         onCustomRowAdd={vi.fn()}
         onRoundSizeChange={vi.fn()}
+        onClearImportFeedback={vi.fn()}
+        onExportCsv={exportCsvMock}
+        onImportCsv={vi.fn()}
         onToggleSetting={vi.fn()}
         onStart={vi.fn()}
       />,
@@ -202,5 +224,48 @@ describe("HomeScreen", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Error inmediato")).toBeInTheDocument();
     expect(screen.getByText("fēi1 jī1")).toBeInTheDocument();
+  });
+
+  it("calls import when a CSV file is selected", async () => {
+    const onImportCsv = vi.fn();
+    const fileTextMock = vi.fn().mockResolvedValue("record_type;vocabulary_set");
+
+    render(
+      <HomeScreen
+        activeVocabularySet="custom"
+        allCards={cards}
+        totalCards={1}
+        importFeedback={null}
+        mistakeCards={0}
+        customDeckErrors={[]}
+        customRows={[{ hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" }]}
+        progress={{}}
+        progressByMode={defaultProgressByMode()}
+        settings={settings}
+        onVocabularySetChange={vi.fn()}
+        onCustomRowChange={vi.fn()}
+        onCustomRowDelete={vi.fn()}
+        onCustomRowAdd={vi.fn()}
+        onRoundSizeChange={vi.fn()}
+        onClearImportFeedback={vi.fn()}
+        onExportCsv={exportCsvMock}
+        onImportCsv={onImportCsv}
+        onToggleSetting={vi.fn()}
+        onStart={vi.fn()}
+      />,
+    );
+
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    const file = new File(["ignored"], "import.csv", {
+      type: "text/csv",
+    });
+    Object.defineProperty(file, "text", {
+      configurable: true,
+      value: fileTextMock,
+    });
+
+    await fireEvent.change(fileInput, { target: { files: [file] } });
+
+    expect(onImportCsv).toHaveBeenCalledWith("record_type;vocabulary_set");
   });
 });

@@ -1,10 +1,11 @@
-import { useEffect, useMemo, useState, type KeyboardEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type KeyboardEvent } from "react";
 
 import {
   buildModeStatsRows,
   sortModeStatsRows,
   type CardModeStatsSort,
 } from "../lib/modeStats";
+import type { ExportScope } from "../lib/csvExchange";
 import type { CustomWordRow } from "../data/customList";
 import type {
   Card,
@@ -18,6 +19,7 @@ import type {
 type HomeScreenProps = {
   activeVocabularySet: VocabularySet;
   allCards: Card[];
+  importFeedback: string | null;
   totalCards: number;
   mistakeCards: number;
   customDeckErrors: string[];
@@ -34,6 +36,9 @@ type HomeScreenProps = {
   onCustomRowDelete: (rowIndex: number) => void;
   onCustomRowAdd: () => void;
   onRoundSizeChange: (value: number) => void;
+  onClearImportFeedback: () => void;
+  onExportCsv: (scope: ExportScope) => { content: string; filename: string };
+  onImportCsv: (source: string) => void;
   onToggleSetting: (key: "showPinyin" | "colorTones") => void;
   onStart: (mode: StudyMode) => void;
 };
@@ -105,6 +110,20 @@ const statsSortOptions: Array<{ value: CardModeStatsSort; label: string }> = [
   { value: "spanish-asc", label: "Castellano A-Z" },
 ];
 
+function readTextFile(file: File) {
+  if (typeof file.text === "function") {
+    return file.text();
+  }
+
+  return new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+
+    reader.onload = () => resolve(String(reader.result ?? ""));
+    reader.onerror = () => reject(reader.error ?? new Error("No se pudo leer el archivo."));
+    reader.readAsText(file);
+  });
+}
+
 function focusSpreadsheetCell(rowIndex: number, columnIndex: number) {
   if (typeof document === "undefined") {
     return;
@@ -120,6 +139,7 @@ function focusSpreadsheetCell(rowIndex: number, columnIndex: number) {
 export function HomeScreen({
   activeVocabularySet,
   allCards,
+  importFeedback,
   totalCards,
   mistakeCards,
   customDeckErrors,
@@ -132,6 +152,9 @@ export function HomeScreen({
   onCustomRowDelete,
   onCustomRowAdd,
   onRoundSizeChange,
+  onClearImportFeedback,
+  onExportCsv,
+  onImportCsv,
   onToggleSetting,
   onStart,
 }: HomeScreenProps) {
@@ -139,6 +162,7 @@ export function HomeScreen({
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [statsMode, setStatsMode] = useState<StudyMode>("typing");
   const [statsSort, setStatsSort] = useState<CardModeStatsSort>("priority-desc");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
   const knownCards = Object.values(progress).filter(
     (entry) => entry.correct >= 2 && entry.correct > entry.incorrect,
   ).length;
@@ -156,6 +180,29 @@ export function HomeScreen({
     [allCards, progressByMode, settings.roundSize, statsMode, statsSort],
   );
   const previewCount = statsRows.filter((row) => row.selectedInPreview).length;
+
+  const triggerDownload = (scope: ExportScope) => {
+    const { content, filename } = onExportCsv(scope);
+    const blob = new Blob([content], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = filename;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const handleImportFile = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+
+    if (!file) {
+      return;
+    }
+
+    const source = await readTextFile(file);
+    onImportCsv(source);
+    event.target.value = "";
+  };
 
   useEffect(() => {
     if (activeVocabularySet === "custom") {
@@ -292,6 +339,30 @@ export function HomeScreen({
           ))}
         </div>
 
+        <div className="custom-list-actions export-actions">
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={() => triggerDownload("hsk20")}
+          >
+            Exportar HSK 2.0 CSV
+          </button>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={() => triggerDownload("hsk30")}
+          >
+            Exportar HSK 3.0 CSV
+          </button>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={() => triggerDownload("all")}
+          >
+            Exportar todo CSV
+          </button>
+        </div>
+
         {activeVocabularySet === "custom" ? (
           <div className="custom-list-panel">
             <div className="custom-list-header">
@@ -320,8 +391,30 @@ export function HomeScreen({
                     Agregar fila
                   </button>
                 ) : null}
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={() => triggerDownload("custom")}
+                >
+                  Exportar custom CSV
+                </button>
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={() => fileInputRef.current?.click()}
+                >
+                  Importar CSV
+                </button>
               </div>
             </div>
+
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv,text/csv"
+              className="visually-hidden"
+              onChange={handleImportFile}
+            />
 
             {isCustomEditorOpen ? (
               <div className="custom-table-shell">
@@ -415,6 +508,20 @@ export function HomeScreen({
                 <p>{totalCards} tarjetas disponibles desde tu vocabulario propio.</p>
               </div>
             )}
+
+            {importFeedback ? (
+              <div className="custom-list-hint" role="status">
+                <strong>Importación completada.</strong>
+                <p>{importFeedback}</p>
+                <button
+                  type="button"
+                  className="ghost-button"
+                  onClick={onClearImportFeedback}
+                >
+                  Cerrar mensaje
+                </button>
+              </div>
+            ) : null}
           </div>
         ) : null}
       </section>
