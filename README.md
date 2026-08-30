@@ -41,8 +41,8 @@ El repositorio ya incluye un MVP funcional con:
 ## Fuentes de datos
 
 - HSK 2.0 nivel 1: paquete `@leonsilicon/hsk2.0`
-- HSK 3.0 nivel 1: CSV descargado desde `studycli.org` y guardado en [data/cli-hsk1-3.0.csv](/Users/alecu/Documents/Codex/2026-06-28-hola-quiero-que-hagamos-un-plan/data/cli-hsk1-3.0.csv:1)
-- Dataset normalizado de la fuente HSK 3.0: [src/data/hsk30Source.json](/Users/alecu/Documents/Codex/2026-06-28-hola-quiero-que-hagamos-un-plan/src/data/hsk30Source.json:1)
+- HSK 3.0 nivel 1: CSV descargado desde `studycli.org` y guardado en [data/cli-hsk1-3.0.csv](data/cli-hsk1-3.0.csv)
+- Dataset normalizado de la fuente HSK 3.0: [src/data/hsk30Source.json](src/data/hsk30Source.json)
 
 ## Desarrollo local
 
@@ -75,8 +75,8 @@ La suite actual cubre:
 
 El repositorio incluye:
 
-- [`.github/workflows/ci.yml`](/Users/alecu/Documents/Codex/2026-06-28-hola-quiero-que-hagamos-un-plan/.github/workflows/ci.yml:1) para correr tests y build en cada push y pull request.
-- [`.github/workflows/deploy.yml`](/Users/alecu/Documents/Codex/2026-06-28-hola-quiero-que-hagamos-un-plan/.github/workflows/deploy.yml:1) para ejecutar tests, build y deploy a GitHub Pages en cada push a `main`.
+- [`.github/workflows/ci.yml`](.github/workflows/ci.yml) para correr tests y build en cada push y pull request.
+- [`.github/workflows/deploy.yml`](.github/workflows/deploy.yml) para ejecutar tests, build y deploy a GitHub Pages en cada push a `main`.
 
 ## Proximo paso recomendado
 
