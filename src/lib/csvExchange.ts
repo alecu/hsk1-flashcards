@@ -54,7 +54,12 @@ function scopedCards(
   cardsBySet: Record<VocabularySet, Card[]>,
 ) {
   if (scope === "all") {
-    return [...cardsBySet.hsk20, ...cardsBySet.hsk30, ...cardsBySet.custom];
+    return [
+      ...cardsBySet.hsk20,
+      ...cardsBySet.hsk30,
+      ...cardsBySet.radicales,
+      ...cardsBySet.custom,
+    ];
   }
 
   return cardsBySet[scope];
@@ -95,7 +100,7 @@ function scopedWordRows(
     });
   }
 
-  (["hsk20", "hsk30"] as VocabularySet[]).forEach((setId) => {
+  (["hsk20", "hsk30", "radicales"] as VocabularySet[]).forEach((setId) => {
     if (scope !== "all" && scope !== setId) {
       return;
     }

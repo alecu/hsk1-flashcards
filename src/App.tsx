@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { HomeScreen } from "./components/HomeScreen";
 import { ResultsScreen } from "./components/ResultsScreen";
 import { SessionScreen } from "./components/SessionScreen";
-import { hsk20Cards, hsk30Cards, vocabularyDecks } from "./data/cards";
+import { hsk20Cards, hsk30Cards, radicalesCards, vocabularyDecks } from "./data/cards";
 import {
   buildCustomDeck,
   parseCustomWordRows,
@@ -86,6 +86,7 @@ export default function App() {
     () => ({
       hsk20: hsk20Cards,
       hsk30: hsk30Cards,
+      radicales: radicalesCards,
       custom: customDeck.cards,
     }),
     [customDeck.cards],

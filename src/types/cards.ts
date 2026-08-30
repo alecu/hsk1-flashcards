@@ -1,5 +1,5 @@
 export type Tone = 0 | 1 | 2 | 3 | 4;
-export type VocabularySet = "hsk20" | "hsk30" | "custom";
+export type VocabularySet = "hsk20" | "hsk30" | "custom" | "radicales";
 
 export type CardSyllable = {
   hanzi: string;

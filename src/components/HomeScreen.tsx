@@ -59,6 +59,11 @@ const vocabularyOptions: Array<{
     description: "Nueva lista con 300 palabras base.",
   },
   {
+    id: "radicales",
+    title: "Radicales",
+    description: "18 radicales comunes de hanzi con su significado.",
+  },
+  {
     id: "custom",
     title: "Lista personal",
     description: "Cards creadas desde una lista editable de pinyin y castellano.",
@@ -302,7 +307,9 @@ export function HomeScreen({
                 ? "Tarjetas HSK 2.0"
                 : activeVocabularySet === "hsk30"
                   ? "Tarjetas HSK 3.0"
-                  : "Tarjetas personalizadas"}
+                  : activeVocabularySet === "radicales"
+                    ? "Tarjetas de radicales"
+                    : "Tarjetas personalizadas"}
             </span>
             <strong>{totalCards}</strong>
           </div>
@@ -353,6 +360,13 @@ export function HomeScreen({
             onClick={() => triggerDownload("hsk30")}
           >
             Exportar HSK 3.0 CSV
+          </button>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={() => triggerDownload("radicales")}
+          >
+            Exportar Radicales CSV
           </button>
           <button
             type="button"
