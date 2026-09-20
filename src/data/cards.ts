@@ -3,8 +3,9 @@ import hsk20WordsLevel1 from "@leonsilicon/hsk2.0/HSK2.0_words_level1.json";
 import { buildCustomDeck, defaultCustomWordList } from "./customList";
 import hsk30Source from "./hsk30Source.json";
 import { radicalesCards } from "./radicals";
+import { isleNivel2Cards, isleNivel2Deck } from "./isleNivel2";
 
-export { radicalesCards };
+export { radicalesCards, isleNivel2Cards };
 import { hsk1Glossary, type GlossaryEntry } from "./hsk1Glossary";
 import { hsk30Glossary } from "./hsk30Glossary";
 import {
@@ -139,5 +140,6 @@ export const vocabularyDecks = {
     subtitle: "18 radicales",
     cards: radicalesCards,
   },
+  isleNivel2: isleNivel2Deck,
   custom: buildCustomDeck(defaultCustomWordList),
 } as const;

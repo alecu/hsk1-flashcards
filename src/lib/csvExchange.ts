@@ -58,6 +58,7 @@ function scopedCards(
       ...cardsBySet.hsk20,
       ...cardsBySet.hsk30,
       ...cardsBySet.radicales,
+      ...cardsBySet.isleNivel2,
       ...cardsBySet.custom,
     ];
   }
@@ -100,7 +101,7 @@ function scopedWordRows(
     });
   }
 
-  (["hsk20", "hsk30", "radicales"] as VocabularySet[]).forEach((setId) => {
+  (["hsk20", "hsk30", "radicales", "isleNivel2"] as VocabularySet[]).forEach((setId) => {
     if (scope !== "all" && scope !== setId) {
       return;
     }

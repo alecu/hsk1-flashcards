@@ -6,7 +6,7 @@ import {
 } from "../lib/pinyin";
 import { parseCsvLine, serializeCsvRow } from "../lib/csv";
 import { normalizeAnswer } from "../lib/text";
-import type { Card } from "../types/cards";
+import type { Card, VocabularySet } from "../types/cards";
 
 export type CustomWordRow = {
   hanzi: string;
@@ -108,90 +108,6 @@ const defaultCustomWordRows: CustomWordRow[] = [
   { hanzi: "不客气", pinyin: "bu2ke4qi0", spanish: "no hay de qué / de nada" },
   { hanzi: "学生", pinyin: "xue2sheng1", spanish: "estudiante" },
   { hanzi: "老师", pinyin: "lao3shi1", spanish: "docente" },
-  { hanzi: "预订", pinyin: "yu4ding4", spanish: "reservar" },
-  { hanzi: "叫", pinyin: "jiao4", spanish: "llamarse" },
-  { hanzi: "姓", pinyin: "xing4", spanish: "apellidarse / apellido" },
-  { hanzi: "想", pinyin: "xiang3", spanish: "quisiera" },
-  { hanzi: "房间", pinyin: "fang2jian1", spanish: "habitación" },
-  { hanzi: "饭店", pinyin: "fan4dian4", spanish: "hotel" },
-  { hanzi: "从", pinyin: "cong2", spanish: "desde" },
-  { hanzi: "到", pinyin: "dao4", spanish: "hasta / llegar" },
-  { hanzi: "什么时候", pinyin: "shen2me0shi2hou0", spanish: "cuándo" },
-  { hanzi: "月", pinyin: "yue4", spanish: "mes" },
-  { hanzi: "号", pinyin: "hao4", spanish: "número de día" },
-  { hanzi: "一共", pinyin: "yi2gong4", spanish: "en total" },
-  { hanzi: "国际", pinyin: "guo2ji4", spanish: "internacional" },
-  { hanzi: "个", pinyin: "ge0", spanish: "clasificador de uso amplio" },
-  { hanzi: "就这样", pinyin: "jiu4zhe4yang4", spanish: "quedamos así" },
-  { hanzi: "宾馆", pinyin: "bin1guan3", spanish: "hotel de categoría" },
-  { hanzi: "洗手间", pinyin: "xi3shou3jian1", spanish: "toilet" },
-  { hanzi: "公司", pinyin: "gong1si1", spanish: "compañía / empresa" },
-  { hanzi: "名字", pinyin: "ming2zi0", spanish: "nombre" },
-  { hanzi: "年", pinyin: "nian2", spanish: "año" },
-  { hanzi: "一月", pinyin: "yi1yue4", spanish: "enero" },
-  { hanzi: "二月", pinyin: "er4yue4", spanish: "febrero" },
-  { hanzi: "三月", pinyin: "san1yue4", spanish: "marzo" },
-  { hanzi: "四月", pinyin: "si4yue4", spanish: "abril" },
-  { hanzi: "五月", pinyin: "wu3yue4", spanish: "mayo" },
-  { hanzi: "六月", pinyin: "liu4yue4", spanish: "junio" },
-  { hanzi: "七月", pinyin: "qi1yue4", spanish: "julio" },
-  { hanzi: "八月", pinyin: "ba1yue4", spanish: "agosto" },
-  { hanzi: "九月", pinyin: "jiu3yue4", spanish: "septiembre" },
-  { hanzi: "十月", pinyin: "shi2yue4", spanish: "octubre" },
-  { hanzi: "十一月", pinyin: "shi2yi1yue4", spanish: "noviembre" },
-  { hanzi: "十二月", pinyin: "shi2er4yue4", spanish: "diciembre" },
-  { hanzi: "点", pinyin: "dian3", spanish: "pedir (en un restaurante)" },
-  { hanzi: "找", pinyin: "zhao3", spanish: "dar vuelto" },
-  { hanzi: "买单", pinyin: "mai3dan1", spanish: "pedir la cuenta" },
-  { hanzi: "吃", pinyin: "chi1", spanish: "comer" },
-  { hanzi: "炒", pinyin: "chao3", spanish: "saltear" },
-  { hanzi: "不用", pinyin: "bu2yong4", spanish: "no hace falta" },
-  { hanzi: "鸡蛋", pinyin: "ji1dan4", spanish: "huevo" },
-  { hanzi: "素", pinyin: "su4", spanish: "vegetariano" },
-  { hanzi: "春卷", pinyin: "chun1juan3", spanish: "arrollado primavera" },
-  { hanzi: "饭", pinyin: "fan4", spanish: "arroz cocido" },
-  { hanzi: "可乐", pinyin: "ke3le4", spanish: "Coca Cola" },
-  { hanzi: "和", pinyin: "he2", spanish: "y" },
-  { hanzi: "位", pinyin: "wei4", spanish: "cuantificador de persona (uso formal)" },
-  { hanzi: "几", pinyin: "ji3", spanish: "cuántos" },
-  { hanzi: "就", pinyin: "jiu4", spanish: "solo / solamente" },
-  { hanzi: "饭店 / 餐馆", pinyin: "fan4dian4 / can1guan3", spanish: "restaurante" },
-  { hanzi: "菜单", pinyin: "cai4dan1", spanish: "menú" },
-  { hanzi: "小费", pinyin: "xiao3fei4", spanish: "propina" },
-  { hanzi: "好吃", pinyin: "hao3chi1", spanish: "rica comida" },
-  { hanzi: "好喝", pinyin: "hao3he1", spanish: "rica bebida" },
-  { hanzi: "不错", pinyin: "bu2cuo4", spanish: "no está mal" },
-  { hanzi: "需要", pinyin: "xu1yao4", spanish: "necesitar" },
-  { hanzi: "帮", pinyin: "bang1", spanish: "ayudar" },
-  { hanzi: "下午", pinyin: "xia4wu3", spanish: "a la tarde" },
-  { hanzi: "点", pinyin: "dian3", spanish: "la hora" },
-  { hanzi: "几点", pinyin: "ji3dian3", spanish: "qué hora" },
-  { hanzi: "没问题", pinyin: "mei2wen4ti2", spanish: "no hay problema" },
-  { hanzi: "现在", pinyin: "xian4zai4", spanish: "ahora" },
-  { hanzi: "辆", pinyin: "liang4", spanish: "cuantificador de vehículos" },
-  { hanzi: "麻烦", pinyin: "ma2fan0", spanish: "molestar / molestia" },
-  { hanzi: "半", pinyin: "ban4", spanish: "media" },
-  { hanzi: "游客", pinyin: "you2ke4", spanish: "turista" },
-  { hanzi: "上午", pinyin: "shang4wu3", spanish: "a la mañana" },
-  { hanzi: "中午", pinyin: "zhong1wu3", spanish: "al mediodía" },
-  { hanzi: "晚上", pinyin: "wan3shang0", spanish: "a la noche" },
-  { hanzi: "早上", pinyin: "zao3shang0", spanish: "a la mañana temprano" },
-  { hanzi: "分", pinyin: "fen1", spanish: "minutos" },
-  { hanzi: "开会", pinyin: "kai1hui4", spanish: "reunirse, tener una reunión" },
-  { hanzi: "今天", pinyin: "jin1tian1", spanish: "hoy" },
-  { hanzi: "明天", pinyin: "ming2tian1", spanish: "mañana" },
-  { hanzi: "后天", pinyin: "hou4tian1", spanish: "pasado mañana" },
-  { hanzi: "星期一", pinyin: "xing1qi1yi1", spanish: "lunes" },
-  { hanzi: "星期二", pinyin: "xing1qi1er4", spanish: "martes" },
-  { hanzi: "星期三", pinyin: "xing1qi1san1", spanish: "miércoles" },
-  { hanzi: "星期四", pinyin: "xing1qi1si4", spanish: "jueves" },
-  { hanzi: "星期五", pinyin: "xing1qi1wu3", spanish: "viernes" },
-  { hanzi: "星期六", pinyin: "xing1qi1liu4", spanish: "sábado" },
-  {
-    hanzi: "星期天 / 星期日",
-    pinyin: "xing1qi1tian1 / xing1qi1ri4",
-    spanish: "domingo",
-  },
 ];
 
 export const defaultCustomWordList = serializeCustomWordRows(defaultCustomWordRows);
@@ -262,6 +178,7 @@ function buildCardFromVariant(
   spanishText: string,
   lineNumber: number,
   variantIndex: number,
+  vocabularySet: VocabularySet,
 ) {
   const syllables = splitNumericPinyinSyllables(pinyinVariant);
   const answers = buildAnswers(spanishText);
@@ -284,7 +201,7 @@ function buildCardFromVariant(
   }
 
   return {
-    id: `custom-${lineNumber}-${variantIndex}-${hanziVariant || promptText}-${syllables.join("-")}`,
+    id: `${vocabularySet}-${lineNumber}-${variantIndex}-${hanziVariant || promptText}-${syllables.join("-")}`,
     hanzi: hanziVariant || promptText,
     spanish: answers[0],
     answers,
@@ -295,7 +212,7 @@ function buildCardFromVariant(
       pinyinDisplay: formatPinyinWithToneMark(syllable),
       tone: getToneFromPinyin(syllable),
     })),
-    vocabularySet: "custom",
+    vocabularySet,
     hskLevel: 1,
   } satisfies Card;
 }
@@ -366,7 +283,10 @@ export function serializeCustomWordRows(rows: CustomWordRow[]) {
     .join("\n");
 }
 
-export function parseCustomWordList(source: string): ParsedCustomList {
+export function parseCustomWordList(
+  source: string,
+  vocabularySet: VocabularySet = "custom",
+): ParsedCustomList {
   const rows = parseCustomWordRows(source);
   const cards: Card[] = [];
   const errors: string[] = [];
@@ -420,6 +340,7 @@ export function parseCustomWordList(source: string): ParsedCustomList {
             row.spanish,
             index + 1,
             variantIndex,
+            vocabularySet,
           ),
         );
       } catch (error) {
@@ -442,5 +363,32 @@ export function buildCustomDeck(source: string) {
     subtitle: `${parsed.cards.length} tarjetas`,
     cards: parsed.cards,
     errors: parsed.errors,
+  } as const;
+}
+
+/**
+ * Builds a fixed (non-editable) deck from a hardcoded word list, reusing the
+ * same row parsing/segmentation as the user-editable custom list. Unlike
+ * `buildCustomDeck`, a bad row is a build-time bug (the source isn't
+ * user-editable), so it throws instead of surfacing per-row errors.
+ */
+export function buildFixedWordDeck(
+  rows: CustomWordRow[],
+  vocabularySet: VocabularySet,
+  deckMeta: { id: string; label: string; subtitle: string },
+) {
+  const parsed = parseCustomWordList(serializeCustomWordRows(rows), vocabularySet);
+
+  if (parsed.errors.length > 0) {
+    throw new Error(
+      `Errores en el dataset ${deckMeta.id}: ${parsed.errors.join(" ")}`,
+    );
+  }
+
+  return {
+    id: deckMeta.id,
+    label: deckMeta.label,
+    subtitle: deckMeta.subtitle,
+    cards: parsed.cards,
   } as const;
 }

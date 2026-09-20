@@ -65,6 +65,7 @@ describe("csv exchange", () => {
         hsk20: [hskCard],
         hsk30: [],
         radicales: [],
+        isleNivel2: [],
       },
       customRows: [{ hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" }],
       progressByMode: progress,

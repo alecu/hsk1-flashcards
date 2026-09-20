@@ -64,6 +64,11 @@ const vocabularyOptions: Array<{
     description: "18 radicales comunes de hanzi con su significado.",
   },
   {
+    id: "isleNivel2",
+    title: "ISLE Nivel 2",
+    description: "Instituto Superior de Lenguas Extranjeras",
+  },
+  {
     id: "custom",
     title: "Lista personal",
     description: "Cards creadas desde una lista editable de pinyin y castellano.",
@@ -309,7 +314,9 @@ export function HomeScreen({
                   ? "Tarjetas HSK 3.0"
                   : activeVocabularySet === "radicales"
                     ? "Tarjetas de radicales"
-                    : "Tarjetas personalizadas"}
+                    : activeVocabularySet === "isleNivel2"
+                      ? "Tarjetas ISLE Nivel 2"
+                      : "Tarjetas personalizadas"}
             </span>
             <strong>{totalCards}</strong>
           </div>
@@ -367,6 +374,13 @@ export function HomeScreen({
             onClick={() => triggerDownload("radicales")}
           >
             Exportar Radicales CSV
+          </button>
+          <button
+            type="button"
+            className="ghost-button"
+            onClick={() => triggerDownload("isleNivel2")}
+          >
+            Exportar ISLE Nivel 2 CSV
           </button>
           <button
             type="button"
