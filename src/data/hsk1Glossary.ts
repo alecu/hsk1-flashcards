@@ -148,7 +148,7 @@ export const hsk1Glossary: Record<string, GlossaryEntry> = {
   "谢谢": { spanish: "gracias" },
   "这": { spanish: "este", aliases: ["esta"] },
   "那": { spanish: "ese", aliases: ["esa", "aquel", "aquella"] },
-  "都": { spanish: "todos", aliases: ["también", "tambien"] },
+  "都": { spanish: "todos", aliases: ["todas"] },
   "里": { spanish: "dentro", aliases: ["adentro"] },
   "钱": { spanish: "dinero" },
   "飞机": { spanish: "avión", aliases: ["avion"] },
