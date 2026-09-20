@@ -169,6 +169,7 @@ export function HomeScreen({
   onStart,
 }: HomeScreenProps) {
   const [isCustomEditorOpen, setIsCustomEditorOpen] = useState(false);
+  const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
   const [isStatsOpen, setIsStatsOpen] = useState(false);
   const [statsMode, setStatsMode] = useState<StudyMode>("typing");
   const [statsSort, setStatsSort] = useState<CardModeStatsSort>("priority-desc");
@@ -351,44 +352,6 @@ export function HomeScreen({
               <span>{option.description}</span>
             </button>
           ))}
-        </div>
-
-        <div className="custom-list-actions export-actions">
-          <button
-            type="button"
-            className="ghost-button"
-            onClick={() => triggerDownload("hsk20")}
-          >
-            Exportar HSK 2.0 CSV
-          </button>
-          <button
-            type="button"
-            className="ghost-button"
-            onClick={() => triggerDownload("hsk30")}
-          >
-            Exportar HSK 3.0 CSV
-          </button>
-          <button
-            type="button"
-            className="ghost-button"
-            onClick={() => triggerDownload("radicales")}
-          >
-            Exportar Radicales CSV
-          </button>
-          <button
-            type="button"
-            className="ghost-button"
-            onClick={() => triggerDownload("isleNivel2")}
-          >
-            Exportar ISLE Nivel 2 CSV
-          </button>
-          <button
-            type="button"
-            className="ghost-button"
-            onClick={() => triggerDownload("all")}
-          >
-            Exportar todo CSV
-          </button>
         </div>
 
         {activeVocabularySet === "custom" ? (
@@ -597,111 +560,168 @@ export function HomeScreen({
       </section>
 
       <section className="control-panel">
-        <div className="custom-list-header">
+        <div className="panel-header">
           <div>
-            <p className="eyebrow">Analitica</p>
-            <h2>Estadísticas avanzadas</h2>
-            <small className="stats-helper-copy">
-              Vista por modo con bucket, prioridad del algoritmo y probabilidad
-              estimada de entrar en un próximo mazo de {settings.roundSize} tarjetas.
-            </small>
+            <p className="eyebrow">Configuración</p>
+            <h2>Opciones avanzadas</h2>
           </div>
           <button
             type="button"
             className="ghost-button"
-            onClick={() => setIsStatsOpen((current) => !current)}
-            aria-expanded={isStatsOpen}
+            onClick={() => setIsAdvancedOpen((current) => !current)}
+            aria-expanded={isAdvancedOpen}
           >
-            {isStatsOpen ? "Ocultar estadísticas" : "Ver estadísticas"}
+            {isAdvancedOpen ? "Ocultar opciones avanzadas" : "Ver opciones avanzadas"}
           </button>
         </div>
 
-        {isStatsOpen ? (
-          <div className="stats-panel">
-            <div className="stats-toolbar">
-              <div className="stats-mode-switcher" role="tablist" aria-label="Modo de estadísticas">
-                {modeCards.map((mode) => (
-                  <button
-                    key={mode.id}
-                    type="button"
-                    role="tab"
-                    aria-selected={statsMode === mode.id}
-                    className={`deck-option stats-mode-button ${statsMode === mode.id ? "deck-option-active" : ""}`}
-                    onClick={() => setStatsMode(mode.id)}
-                  >
-                    <strong>{mode.title}</strong>
-                  </button>
-                ))}
+        {isAdvancedOpen ? (
+          <div className="custom-list-panel">
+            <div className="custom-list-actions export-actions">
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => triggerDownload("hsk20")}
+              >
+                Exportar HSK 2.0 CSV
+              </button>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => triggerDownload("hsk30")}
+              >
+                Exportar HSK 3.0 CSV
+              </button>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => triggerDownload("radicales")}
+              >
+                Exportar Radicales CSV
+              </button>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => triggerDownload("isleNivel2")}
+              >
+                Exportar ISLE Nivel 2 CSV
+              </button>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => triggerDownload("all")}
+              >
+                Exportar todo CSV
+              </button>
+            </div>
+
+            <div className="custom-list-header">
+              <div>
+                <p className="eyebrow">Analitica</p>
+                <h3>Estadísticas avanzadas</h3>
+                <small className="stats-helper-copy">
+                  Vista por modo con bucket, prioridad del algoritmo y probabilidad
+                  estimada de entrar en un próximo mazo de {settings.roundSize} tarjetas.
+                </small>
               </div>
-
-              <label className="stats-sorter">
-                <span>Ordenar por</span>
-                <select
-                  value={statsSort}
-                  onChange={(event) =>
-                    setStatsSort(event.target.value as CardModeStatsSort)
-                  }
-                >
-                  {statsSortOptions.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => setIsStatsOpen((current) => !current)}
+                aria-expanded={isStatsOpen}
+              >
+                {isStatsOpen ? "Ocultar estadísticas" : "Ver estadísticas"}
+              </button>
             </div>
 
-            <div className="stats-summary">
-              <span>{previewCount} tarjetas entrarían en la próxima ronda.</span>
-              <span>{statsRows.length} tarjetas analizadas.</span>
-            </div>
+            {isStatsOpen ? (
+              <div className="stats-panel">
+                <div className="stats-toolbar">
+                  <div className="stats-mode-switcher" role="tablist" aria-label="Modo de estadísticas">
+                    {modeCards.map((mode) => (
+                      <button
+                        key={mode.id}
+                        type="button"
+                        role="tab"
+                        aria-selected={statsMode === mode.id}
+                        className={`deck-option stats-mode-button ${statsMode === mode.id ? "deck-option-active" : ""}`}
+                        onClick={() => setStatsMode(mode.id)}
+                      >
+                        <strong>{mode.title}</strong>
+                      </button>
+                    ))}
+                  </div>
 
-            <div className="stats-table-shell">
-              <table className="stats-table" aria-label="Estadísticas por tarjeta">
-                <thead>
-                  <tr>
-                    <th scope="col">Palabra</th>
-                    <th scope="col">Bucket</th>
-                    <th scope="col">Prob. est.</th>
-                    <th scope="col">Score</th>
-                    <th scope="col">Intentos</th>
-                    <th scope="col">Aciertos</th>
-                    <th scope="col">Fallos</th>
-                    <th scope="col">Racha</th>
-                    <th scope="col">Recientes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {statsRows.map((row) => (
-                    <tr key={`${row.mode}-${row.cardId}`}>
-                      <td>
-                        <div className="stats-word-cell">
-                          <strong>{row.hanzi}</strong>
-                          <span>{row.pinyinDisplay}</span>
-                          <small>{row.spanish}</small>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="stats-bucket">{row.bucket}</span>
-                      </td>
-                      <td>
-                        <span
-                          className={`stats-probability ${row.selectedInPreview ? "stats-probability-active" : ""}`}
-                        >
-                          {Math.round(row.estimatedProbability)}%
-                        </span>
-                      </td>
-                      <td>{row.priorityScore.toFixed(1)}</td>
-                      <td>{row.attempts}</td>
-                      <td>{row.correct}</td>
-                      <td>{row.incorrect}</td>
-                      <td>{row.streak}</td>
-                      <td>{row.recentResultsLabel}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  <label className="stats-sorter">
+                    <span>Ordenar por</span>
+                    <select
+                      value={statsSort}
+                      onChange={(event) =>
+                        setStatsSort(event.target.value as CardModeStatsSort)
+                      }
+                    >
+                      {statsSortOptions.map((option) => (
+                        <option key={option.value} value={option.value}>
+                          {option.label}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+                </div>
+
+                <div className="stats-summary">
+                  <span>{previewCount} tarjetas entrarían en la próxima ronda.</span>
+                  <span>{statsRows.length} tarjetas analizadas.</span>
+                </div>
+
+                <div className="stats-table-shell">
+                  <table className="stats-table" aria-label="Estadísticas por tarjeta">
+                    <thead>
+                      <tr>
+                        <th scope="col">Palabra</th>
+                        <th scope="col">Bucket</th>
+                        <th scope="col">Prob. est.</th>
+                        <th scope="col">Score</th>
+                        <th scope="col">Intentos</th>
+                        <th scope="col">Aciertos</th>
+                        <th scope="col">Fallos</th>
+                        <th scope="col">Racha</th>
+                        <th scope="col">Recientes</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {statsRows.map((row) => (
+                        <tr key={`${row.mode}-${row.cardId}`}>
+                          <td>
+                            <div className="stats-word-cell">
+                              <strong>{row.hanzi}</strong>
+                              <span>{row.pinyinDisplay}</span>
+                              <small>{row.spanish}</small>
+                            </div>
+                          </td>
+                          <td>
+                            <span className="stats-bucket">{row.bucket}</span>
+                          </td>
+                          <td>
+                            <span
+                              className={`stats-probability ${row.selectedInPreview ? "stats-probability-active" : ""}`}
+                            >
+                              {Math.round(row.estimatedProbability)}%
+                            </span>
+                          </td>
+                          <td>{row.priorityScore.toFixed(1)}</td>
+                          <td>{row.attempts}</td>
+                          <td>{row.correct}</td>
+                          <td>{row.incorrect}</td>
+                          <td>{row.streak}</td>
+                          <td>{row.recentResultsLabel}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            ) : null}
           </div>
         ) : null}
       </section>

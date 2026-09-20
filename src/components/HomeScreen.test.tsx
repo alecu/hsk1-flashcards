@@ -214,6 +214,9 @@ describe("HomeScreen", () => {
       />,
     );
 
+    fireEvent.click(
+      screen.getByRole("button", { name: "Ver opciones avanzadas" }),
+    );
     fireEvent.click(screen.getByRole("button", { name: "Ver estadísticas" }));
     fireEvent.change(screen.getByLabelText("Ordenar por"), {
       target: { value: "pinyin-asc" },
@@ -224,6 +227,60 @@ describe("HomeScreen", () => {
     ).toBeInTheDocument();
     expect(screen.getByText("Error inmediato")).toBeInTheDocument();
     expect(screen.getByText("fēi1 jī1")).toBeInTheDocument();
+  });
+
+  it("keeps export buttons and stats collapsed inside advanced options by default", () => {
+    render(
+      <HomeScreen
+        activeVocabularySet="custom"
+        allCards={cards}
+        totalCards={1}
+        importFeedback={null}
+        mistakeCards={0}
+        customDeckErrors={[]}
+        customRows={[{ hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" }]}
+        progress={{}}
+        progressByMode={defaultProgressByMode()}
+        settings={settings}
+        onVocabularySetChange={vi.fn()}
+        onCustomRowChange={vi.fn()}
+        onCustomRowDelete={vi.fn()}
+        onCustomRowAdd={vi.fn()}
+        onRoundSizeChange={vi.fn()}
+        onClearImportFeedback={vi.fn()}
+        onExportCsv={exportCsvMock}
+        onImportCsv={vi.fn()}
+        onToggleSetting={vi.fn()}
+        onStart={vi.fn()}
+      />,
+    );
+
+    const advancedToggle = screen.getByRole("button", {
+      name: "Ver opciones avanzadas",
+    });
+
+    expect(advancedToggle).toHaveAttribute("aria-expanded", "false");
+    expect(
+      screen.queryByRole("button", { name: "Exportar HSK 2.0 CSV" }),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole("button", { name: "Ver estadísticas" }),
+    ).not.toBeInTheDocument();
+
+    fireEvent.click(advancedToggle);
+
+    expect(
+      screen.getByRole("button", { name: "Ocultar opciones avanzadas" }),
+    ).toHaveAttribute("aria-expanded", "true");
+    expect(
+      screen.getByRole("button", { name: "Exportar HSK 2.0 CSV" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Exportar ISLE Nivel 2 CSV" }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("button", { name: "Ver estadísticas" }),
+    ).toBeInTheDocument();
   });
 
   it("calls import when a CSV file is selected", async () => {
