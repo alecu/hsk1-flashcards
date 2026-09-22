@@ -1,4 +1,4 @@
-import { aggregateProgressByCards, normalizeCardProgress } from "./progress";
+import { aggregateProgressByCards, isCoolingDown, normalizeCardProgress } from "./progress";
 import {
   getAdaptivePriorityScore,
   getAdaptiveSelectionBucket,
@@ -92,8 +92,22 @@ function estimateProbability(
   mode: StudyMode,
   roundSize: number,
   targetCardId: string,
+  currentRound: number,
+  cooldownRounds: number,
 ) {
   const now = Date.now();
+  const targetProgress = normalizeCardProgress(progressByCard[targetCardId]);
+
+  // A cooling-down card is hard-excluded from the general/mastered pools by
+  // the real picker (see isCoolingDown's callers in session.ts), so its
+  // actual chance of being drawn is 0 regardless of its priority score.
+  if (
+    mode !== "review" &&
+    isCoolingDown(targetProgress, currentRound, cooldownRounds)
+  ) {
+    return 0;
+  }
+
   const weights = cards.map((card) => {
     const progress = normalizeCardProgress(progressByCard[card.id]);
     const rawScore =
@@ -180,6 +194,8 @@ export function buildModeStatsRows(
         mode,
         roundSize,
         card.id,
+        currentRound,
+        cooldownRounds,
       ),
       selectedInPreview: previewIds.has(card.id),
     };
