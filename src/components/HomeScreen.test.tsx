@@ -278,12 +278,28 @@ describe("HomeScreen", () => {
     expect(
       screen.queryByRole("button", { name: "Ver estadísticas" }),
     ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Enfriamiento de acertadas (rondas)"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Mostrar pinyin bajo cada caracter"),
+    ).not.toBeInTheDocument();
+    expect(
+      screen.queryByText("Colorear silabas segun tono"),
+    ).not.toBeInTheDocument();
 
     fireEvent.click(advancedToggle);
 
     expect(
       screen.getByRole("button", { name: "Ocultar opciones avanzadas" }),
     ).toHaveAttribute("aria-expanded", "true");
+    expect(
+      screen.getByText("Enfriamiento de acertadas (rondas)"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("Mostrar pinyin bajo cada caracter"),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Colorear silabas segun tono")).toBeInTheDocument();
     expect(
       screen.getByRole("button", { name: "Exportar HSK 2.0 CSV" }),
     ).toBeInTheDocument();

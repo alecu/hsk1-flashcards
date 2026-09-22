@@ -558,68 +558,62 @@ export function HomeScreen({
             />
             <strong>{settings.roundSize}</strong>
           </label>
-
-          <label className="setting">
-            <span>Enfriamiento de acertadas (rondas)</span>
-            <input
-              type="range"
-              min={0}
-              max={8}
-              step={1}
-              value={settings.cooldownRounds}
-              onChange={(event) =>
-                onCooldownRoundsChange(Number(event.target.value))
-              }
-            />
-            <strong>
-              {settings.cooldownRounds === 0
-                ? "Desactivado"
-                : settings.cooldownRounds}
-            </strong>
-            <small>
-              Una tarjeta recién acertada no vuelve a aparecer hasta pasadas
-              esta cantidad de rondas.
-            </small>
-          </label>
-
-          <label className="toggle">
-            <input
-              type="checkbox"
-              checked={settings.showPinyin}
-              onChange={() => onToggleSetting("showPinyin")}
-            />
-            <span>Mostrar pinyin bajo cada caracter</span>
-          </label>
-
-          <label className="toggle">
-            <input
-              type="checkbox"
-              checked={settings.colorTones}
-              onChange={() => onToggleSetting("colorTones")}
-            />
-            <span>Colorear silabas segun tono</span>
-          </label>
         </div>
-      </section>
 
-      <section className="control-panel">
-        <div className="panel-header">
-          <div>
-            <p className="eyebrow">Configuración</p>
-            <h2>Opciones avanzadas</h2>
-          </div>
-          <button
-            type="button"
-            className="ghost-button"
-            onClick={() => setIsAdvancedOpen((current) => !current)}
-            aria-expanded={isAdvancedOpen}
-          >
-            {isAdvancedOpen ? "Ocultar opciones avanzadas" : "Ver opciones avanzadas"}
-          </button>
-        </div>
+        <button
+          type="button"
+          className="ghost-button"
+          onClick={() => setIsAdvancedOpen((current) => !current)}
+          aria-expanded={isAdvancedOpen}
+        >
+          {isAdvancedOpen ? "Ocultar opciones avanzadas" : "Ver opciones avanzadas"}
+        </button>
 
         {isAdvancedOpen ? (
           <div className="custom-list-panel">
+            <div className="settings-grid">
+              <label className="setting">
+                <span>Enfriamiento de acertadas (rondas)</span>
+                <input
+                  type="range"
+                  min={0}
+                  max={8}
+                  step={1}
+                  value={settings.cooldownRounds}
+                  onChange={(event) =>
+                    onCooldownRoundsChange(Number(event.target.value))
+                  }
+                />
+                <strong>
+                  {settings.cooldownRounds === 0
+                    ? "Desactivado"
+                    : settings.cooldownRounds}
+                </strong>
+                <small>
+                  Una tarjeta recién acertada no vuelve a aparecer hasta pasadas
+                  esta cantidad de rondas.
+                </small>
+              </label>
+
+              <label className="toggle">
+                <input
+                  type="checkbox"
+                  checked={settings.showPinyin}
+                  onChange={() => onToggleSetting("showPinyin")}
+                />
+                <span>Mostrar pinyin bajo cada caracter</span>
+              </label>
+
+              <label className="toggle">
+                <input
+                  type="checkbox"
+                  checked={settings.colorTones}
+                  onChange={() => onToggleSetting("colorTones")}
+                />
+                <span>Colorear silabas segun tono</span>
+              </label>
+            </div>
+
             <div className="custom-list-actions export-actions">
               <button
                 type="button"
