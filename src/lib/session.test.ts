@@ -7,6 +7,7 @@ import {
   pickRoundCards,
   resolveAnswer,
 } from "./session";
+import { isCoolingDown } from "./progress";
 import type { Card, CardProgress } from "../types/cards";
 
 const sampleCards: Card[] = [
@@ -116,7 +117,7 @@ describe("session engine", () => {
   });
 
   it("moves a correct answer to learned and ends when queue is empty", () => {
-    const session = createSession([sampleCards[0]], 1, "typing");
+    const session = createSession([sampleCards[0]], 1, "typing", 1);
 
     expect(session).not.toBeNull();
 
@@ -131,7 +132,7 @@ describe("session engine", () => {
   });
 
   it("requeues an incorrect card instead of dropping it", () => {
-    const session = createSession(sampleCards, 2, "typing");
+    const session = createSession(sampleCards, 2, "typing", 1);
 
     expect(session).not.toBeNull();
 
@@ -170,6 +171,7 @@ describe("session engine", () => {
           recentResults: ["incorrect", "correct", "incorrect"],
           introducedAt: 10,
           lastIncorrectAt: 100,
+          lastSeenRound: 1,
         };
       } else if (index < 5) {
         progress[card.id] = {
@@ -182,6 +184,7 @@ describe("session engine", () => {
           recentResults: [],
           introducedAt: null,
           lastIncorrectAt: null,
+          lastSeenRound: null,
         };
       } else if (index < 7) {
         progress[card.id] = {
@@ -194,6 +197,7 @@ describe("session engine", () => {
           recentResults: ["correct", "correct", "incorrect"],
           introducedAt: 15,
           lastIncorrectAt: 110,
+          lastSeenRound: 1,
         };
       } else if (index < 10) {
         progress[card.id] = {
@@ -206,6 +210,7 @@ describe("session engine", () => {
           recentResults: ["correct", "correct", "correct"],
           introducedAt: 20,
           lastIncorrectAt: 130,
+          lastSeenRound: 1,
         };
       } else {
         progress[card.id] = {
@@ -218,11 +223,14 @@ describe("session engine", () => {
           recentResults: ["correct", "correct", "correct"],
           introducedAt: 30,
           lastIncorrectAt: null,
+          lastSeenRound: 1,
         };
       }
     });
 
-    const round = pickRoundCards(adaptiveCards, 8, progress, "tones");
+    // cooldownRounds=0 disables the cooldown so this test can focus purely
+    // on the recent-error/unseen/recovery/general/mastered bucket mix.
+    const round = pickRoundCards(adaptiveCards, 8, progress, "tones", 1, 0);
     const ids = round.map((card) => card.id);
 
     expect(ids).toEqual(expect.arrayContaining(["adaptive-1", "adaptive-2", "adaptive-3"]));
@@ -234,7 +242,7 @@ describe("session engine", () => {
   it("fills the round with unused cards when a quota bucket is empty", () => {
     const emptyProgress: Record<string, CardProgress> = {};
 
-    const round = pickRoundCards(sampleCards, 4, emptyProgress, "tones");
+    const round = pickRoundCards(sampleCards, 4, emptyProgress, "tones", 1, 0);
 
     expect(round).toHaveLength(4);
     expect(new Set(round.map((card) => card.id)).size).toBe(4);
@@ -252,6 +260,7 @@ describe("session engine", () => {
         recentResults: ["incorrect", "correct", "incorrect"],
         introducedAt: 10,
         lastIncorrectAt: 100,
+        lastSeenRound: 1,
       },
       2: {
         attempts: 5,
@@ -263,6 +272,7 @@ describe("session engine", () => {
         recentResults: ["correct", "incorrect", "correct"],
         introducedAt: 10,
         lastIncorrectAt: 85,
+        lastSeenRound: 1,
       },
       3: {
         attempts: 0,
@@ -274,6 +284,7 @@ describe("session engine", () => {
         recentResults: [],
         introducedAt: null,
         lastIncorrectAt: null,
+        lastSeenRound: null,
       },
       4: {
         attempts: 4,
@@ -285,13 +296,76 @@ describe("session engine", () => {
         recentResults: ["correct", "correct", "correct"],
         introducedAt: 10,
         lastIncorrectAt: null,
+        lastSeenRound: 1,
       },
     };
 
-    const round = pickRoundCards(sampleCards, 4, reviewProgress, "review");
+    const round = pickRoundCards(sampleCards, 4, reviewProgress, "review", 1, 0);
 
     expect(round.map((card) => card.id)).toEqual(expect.arrayContaining(["1", "2"]));
     expect(round.map((card) => card.id)).not.toContain("3");
     expect(round.map((card) => card.id)).not.toContain("4");
+  });
+
+  it("keeps a just-answered-correctly word out of the round until its cooldown expires", () => {
+    const correctProgress = (lastSeenRound: number): CardProgress => ({
+      attempts: 1,
+      correct: 1,
+      incorrect: 0,
+      streak: 1,
+      lastSeenAt: 100,
+      lastResult: "correct",
+      recentResults: ["correct"],
+      introducedAt: 100,
+      lastIncorrectAt: null,
+      lastSeenRound,
+    });
+
+    // Three "general" bucket cards (all attempts>0, none mastered/unseen,
+    // so the round can be filled from this pool alone without touching the
+    // unfiltered fallback that's only meant to backstop a starved round).
+    const cards = sampleCards.slice(0, 3);
+
+    // "1" was answered correctly in round 5; "2"/"3" back in round 1, so
+    // at round 6 with cooldownRounds=3 only "1" is still cooling down.
+    const stillCoolingProgress: Record<string, CardProgress> = {
+      "1": correctProgress(5),
+      "2": correctProgress(1),
+      "3": correctProgress(1),
+    };
+    const stillCoolingDown = pickRoundCards(
+      cards,
+      2,
+      stillCoolingProgress,
+      "typing",
+      6,
+      3,
+    );
+    expect(stillCoolingDown.map((card) => card.id)).not.toContain("1");
+    expect(stillCoolingDown.map((card) => card.id)).toEqual(
+      expect.arrayContaining(["2", "3"]),
+    );
+
+    // Same "1", but only one other card in the pool -- once its cooldown
+    // has expired (5 rounds later), both must be picked to fill the round.
+    const expiredProgress: Record<string, CardProgress> = {
+      "1": correctProgress(5),
+      "2": correctProgress(1),
+    };
+    const cooldownExpired = pickRoundCards(
+      sampleCards.slice(0, 2),
+      2,
+      expiredProgress,
+      "typing",
+      8,
+      3,
+    );
+    expect(cooldownExpired.map((card) => card.id)).toEqual(
+      expect.arrayContaining(["1", "2"]),
+    );
+
+    expect(isCoolingDown(stillCoolingProgress["1"], 6, 3)).toBe(true);
+    expect(isCoolingDown(stillCoolingProgress["1"], 8, 3)).toBe(false);
+    expect(isCoolingDown(stillCoolingProgress["1"], 6, 0)).toBe(false);
   });
 });

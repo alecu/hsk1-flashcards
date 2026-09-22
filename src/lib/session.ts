@@ -4,13 +4,19 @@ import type {
   SessionSummary,
   StudyMode,
 } from "../types/cards";
-import { hasRecentIncorrect, isMastered, normalizeCardProgress } from "./progress";
+import {
+  hasRecentIncorrect,
+  isCoolingDown,
+  isMastered,
+  normalizeCardProgress,
+} from "./progress";
 import { areEquivalentAnswers } from "./text";
 
 export type AdaptiveSelectionBucket =
   | "recent-error"
   | "unseen"
   | "recovery"
+  | "cooldown"
   | "general"
   | "mastered";
 
@@ -23,6 +29,10 @@ export type Session = {
   incorrectIds: string[];
   currentCard: Card;
   roundSize: number;
+  // The PersistedState.roundsPlayed value this session was started at --
+  // stamped onto each card's progress as lastSeenRound once the round
+  // completes, so a future round can tell how long ago it was.
+  roundNumber: number;
 };
 
 export function shuffle<T>(items: T[]) {
@@ -41,12 +51,20 @@ export function pickRoundCards(
   roundSize: number,
   progress: Record<string, CardProgress>,
   mode: StudyMode,
+  currentRound: number,
+  cooldownRounds: number,
 ) {
   if (mode === "review") {
     return pickReviewRoundCards(allCards, roundSize, progress);
   }
 
-  return pickAdaptiveRoundCards(allCards, roundSize, progress);
+  return pickAdaptiveRoundCards(
+    allCards,
+    roundSize,
+    progress,
+    currentRound,
+    cooldownRounds,
+  );
 }
 
 function cardProgressMap(progressByCard: Record<string, CardProgress>, card: Card) {
@@ -87,6 +105,8 @@ export function getReviewPriorityScore(progress: CardProgress, now: number) {
 
 export function getAdaptiveSelectionBucket(
   progress: CardProgress,
+  currentRound: number,
+  cooldownRounds: number,
 ): AdaptiveSelectionBucket {
   if (progress.lastResult === "incorrect") {
     return "recent-error";
@@ -98,6 +118,10 @@ export function getAdaptiveSelectionBucket(
 
   if (hasRecentIncorrect(progress)) {
     return "recovery";
+  }
+
+  if (isCoolingDown(progress, currentRound, cooldownRounds)) {
+    return "cooldown";
   }
 
   if (isMastered(progress)) {
@@ -144,6 +168,8 @@ function pickAdaptiveRoundCards(
   allCards: Card[],
   roundSize: number,
   progressByCard: Record<string, CardProgress>,
+  currentRound: number,
+  cooldownRounds: number,
 ) {
   const targetSize = Math.min(roundSize, allCards.length);
 
@@ -171,16 +197,28 @@ function pickAdaptiveRoundCards(
     progressByCard,
     getAdaptivePriorityScore,
   );
+  // A plain correct answer (not still recovering from a recent miss) sits
+  // out of the general/mastered pools until its cooldown expires.
   const generalCards = sortCardsByScore(
     allCards.filter((card) => {
       const progress = cardProgressMap(progressByCard, card);
-      return progress.attempts > 0 && !isMastered(progress);
+      return (
+        progress.attempts > 0 &&
+        !isMastered(progress) &&
+        !isCoolingDown(progress, currentRound, cooldownRounds)
+      );
     }),
     progressByCard,
     getAdaptivePriorityScore,
   );
   const masteredCards = sortCardsByScore(
-    allCards.filter((card) => isMastered(cardProgressMap(progressByCard, card))),
+    allCards.filter((card) => {
+      const progress = cardProgressMap(progressByCard, card);
+      return (
+        isMastered(progress) &&
+        !isCoolingDown(progress, currentRound, cooldownRounds)
+      );
+    }),
     progressByCard,
     getAdaptivePriorityScore,
   );
@@ -240,6 +278,7 @@ export function createSession(
   cards: Card[],
   roundSize: number,
   mode: StudyMode,
+  roundNumber: number,
 ) {
   const queue = shuffle(cards);
 
@@ -258,6 +297,7 @@ export function createSession(
     incorrectIds: [],
     currentCard,
     roundSize: queue.length,
+    roundNumber,
   } satisfies Session;
 }
 

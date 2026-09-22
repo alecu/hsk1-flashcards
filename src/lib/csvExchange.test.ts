@@ -57,6 +57,7 @@ describe("csv exchange", () => {
       recentResults: ["incorrect", "correct"],
       introducedAt: 1,
       lastIncorrectAt: 10,
+      lastSeenRound: 1,
     };
 
     const csv = exportVocabularyCsv({
@@ -65,6 +66,7 @@ describe("csv exchange", () => {
         hsk20: [hskCard],
         hsk30: [],
         radicales: [],
+        isleNivel1: [],
         isleNivel2: [],
       },
       customRows: [{ hanzi: "飞机", pinyin: "fei1ji1", spanish: "avión" }],

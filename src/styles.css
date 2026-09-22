@@ -535,6 +535,11 @@ h3 {
   font-size: 1.6rem;
 }
 
+.setting small {
+  color: rgba(32, 22, 19, 0.68);
+  line-height: 1.5;
+}
+
 .toggle {
   align-items: center;
   grid-template-columns: auto 1fr;

@@ -30,6 +30,7 @@ const settings: UserSettings = {
   colorTones: true,
   vocabularySet: "hsk20",
   customWordList: defaultCustomWordList,
+  cooldownRounds: 3,
 };
 
 const session: Session = {
@@ -41,6 +42,7 @@ const session: Session = {
   incorrectIds: [],
   currentCard: catCard,
   roundSize: 1,
+  roundNumber: 1,
 };
 
 const dogCard: Card = {

@@ -27,6 +27,7 @@ type HomeScreenProps = {
   progress: Record<string, CardProgress>;
   progressByMode: ProgressByMode;
   settings: UserSettings;
+  roundsPlayed: number;
   onVocabularySetChange: (value: VocabularySet) => void;
   onCustomRowChange: (
     rowIndex: number,
@@ -36,6 +37,7 @@ type HomeScreenProps = {
   onCustomRowDelete: (rowIndex: number) => void;
   onCustomRowAdd: () => void;
   onRoundSizeChange: (value: number) => void;
+  onCooldownRoundsChange: (value: number) => void;
   onClearImportFeedback: () => void;
   onExportCsv: (scope: ExportScope) => { content: string; filename: string };
   onImportCsv: (source: string) => void;
@@ -64,6 +66,11 @@ const vocabularyOptions: Array<{
     description: "18 radicales comunes de hanzi con su significado.",
   },
   {
+    id: "isleNivel1",
+    title: "ISLE Nivel 1",
+    description: "Instituto Superior de Lenguas Extranjeras",
+  },
+  {
     id: "isleNivel2",
     title: "ISLE Nivel 2",
     description: "Instituto Superior de Lenguas Extranjeras",
@@ -74,6 +81,15 @@ const vocabularyOptions: Array<{
     description: "Cards creadas desde una lista editable de pinyin y castellano.",
   },
 ];
+
+const vocabularySetStatLabels: Record<VocabularySet, string> = {
+  hsk20: "Tarjetas HSK 2.0",
+  hsk30: "Tarjetas HSK 3.0",
+  radicales: "Tarjetas de radicales",
+  isleNivel1: "Tarjetas ISLE Nivel 1",
+  isleNivel2: "Tarjetas ISLE Nivel 2",
+  custom: "Tarjetas personalizadas",
+};
 
 const modeCards: Array<{
   id: StudyMode;
@@ -157,11 +173,13 @@ export function HomeScreen({
   progress,
   progressByMode,
   settings,
+  roundsPlayed,
   onVocabularySetChange,
   onCustomRowChange,
   onCustomRowDelete,
   onCustomRowAdd,
   onRoundSizeChange,
+  onCooldownRoundsChange,
   onClearImportFeedback,
   onExportCsv,
   onImportCsv,
@@ -185,10 +203,20 @@ export function HomeScreen({
           progressByMode,
           statsMode,
           settings.roundSize,
+          roundsPlayed + 1,
+          settings.cooldownRounds,
         ),
         statsSort,
       ),
-    [allCards, progressByMode, settings.roundSize, statsMode, statsSort],
+    [
+      allCards,
+      progressByMode,
+      roundsPlayed,
+      settings.cooldownRounds,
+      settings.roundSize,
+      statsMode,
+      statsSort,
+    ],
   );
   const previewCount = statsRows.filter((row) => row.selectedInPreview).length;
 
@@ -309,15 +337,7 @@ export function HomeScreen({
         <div className="stats-grid">
           <div className="stat-card">
             <span className="stat-label">
-              {activeVocabularySet === "hsk20"
-                ? "Tarjetas HSK 2.0"
-                : activeVocabularySet === "hsk30"
-                  ? "Tarjetas HSK 3.0"
-                  : activeVocabularySet === "radicales"
-                    ? "Tarjetas de radicales"
-                    : activeVocabularySet === "isleNivel2"
-                      ? "Tarjetas ISLE Nivel 2"
-                      : "Tarjetas personalizadas"}
+              {vocabularySetStatLabels[activeVocabularySet]}
             </span>
             <strong>{totalCards}</strong>
           </div>
@@ -539,6 +559,29 @@ export function HomeScreen({
             <strong>{settings.roundSize}</strong>
           </label>
 
+          <label className="setting">
+            <span>Enfriamiento de acertadas (rondas)</span>
+            <input
+              type="range"
+              min={0}
+              max={8}
+              step={1}
+              value={settings.cooldownRounds}
+              onChange={(event) =>
+                onCooldownRoundsChange(Number(event.target.value))
+              }
+            />
+            <strong>
+              {settings.cooldownRounds === 0
+                ? "Desactivado"
+                : settings.cooldownRounds}
+            </strong>
+            <small>
+              Una tarjeta recién acertada no vuelve a aparecer hasta pasadas
+              esta cantidad de rondas.
+            </small>
+          </label>
+
           <label className="toggle">
             <input
               type="checkbox"
@@ -598,6 +641,13 @@ export function HomeScreen({
                 onClick={() => triggerDownload("radicales")}
               >
                 Exportar Radicales CSV
+              </button>
+              <button
+                type="button"
+                className="ghost-button"
+                onClick={() => triggerDownload("isleNivel1")}
+              >
+                Exportar ISLE Nivel 1 CSV
               </button>
               <button
                 type="button"

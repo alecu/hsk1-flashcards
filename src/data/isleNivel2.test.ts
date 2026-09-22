@@ -11,18 +11,18 @@ describe("ISLE Nivel 2 deck", () => {
     );
   });
 
-  it("carries the full custom-list default as it stood before the split (original words + Nivel 2)", () => {
-    // 87 original rows + 80 Nivel 2 rows, plus 4 extra cards from rows with
-    // "/"-separated hanzi/pinyin variants ("块 / 元", "小姐 / 女士", "他 / 她",
-    // "饭店 / 餐馆") -- see buildAnswers/resolveVariantValue in customList.ts.
-    expect(isleNivel2Cards.length).toBeGreaterThan(165);
+  it("only carries the Nivel 2 specific vocabulary, split out of Nivel 1", () => {
+    // 80 Nivel 2 rows, plus extra cards from rows with "/"-separated
+    // hanzi/pinyin variants -- the original 87 rows now live in
+    // isleNivel1.ts.
+    expect(isleNivel2Cards.length).toBe(82);
     expect(isleNivel2Cards.every((card) => card.vocabularySet === "isleNivel2")).toBe(
       true,
     );
 
-    // An original word, present before Nivel 2 was ever added.
+    // An original word -- no longer part of this deck.
     const avion = isleNivel2Cards.find((card) => card.hanzi === "飞机");
-    expect(avion?.spanish).toBe("avión");
+    expect(avion).toBeUndefined();
 
     // Nivel 2 vocabulary (hotel/restaurant/dates).
     const reservar = isleNivel2Cards.find((card) => card.hanzi === "预订");

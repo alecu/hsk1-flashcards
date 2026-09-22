@@ -38,6 +38,7 @@ const settings: UserSettings = {
   colorTones: true,
   vocabularySet: "custom",
   customWordList: defaultCustomWordList,
+  cooldownRounds: 3,
 };
 
 const exportCsvMock = (_scope: ExportScope) => ({
@@ -62,11 +63,13 @@ describe("HomeScreen", () => {
         progress={{}}
         progressByMode={defaultProgressByMode()}
         settings={settings}
+        roundsPlayed={0}
         onVocabularySetChange={vi.fn()}
         onCustomRowChange={vi.fn()}
         onCustomRowDelete={vi.fn()}
         onCustomRowAdd={vi.fn()}
         onRoundSizeChange={vi.fn()}
+        onCooldownRoundsChange={vi.fn()}
         onClearImportFeedback={vi.fn()}
         onExportCsv={exportCsvMock}
         onImportCsv={vi.fn()}
@@ -103,11 +106,13 @@ describe("HomeScreen", () => {
         progress={{}}
         progressByMode={defaultProgressByMode()}
         settings={settings}
+        roundsPlayed={0}
         onVocabularySetChange={vi.fn()}
         onCustomRowChange={onCustomRowChange}
         onCustomRowDelete={onCustomRowDelete}
         onCustomRowAdd={onCustomRowAdd}
         onRoundSizeChange={vi.fn()}
+        onCooldownRoundsChange={vi.fn()}
         onClearImportFeedback={vi.fn()}
         onExportCsv={exportCsvMock}
         onImportCsv={vi.fn()}
@@ -152,11 +157,13 @@ describe("HomeScreen", () => {
         progress={{}}
         progressByMode={defaultProgressByMode()}
         settings={settings}
+        roundsPlayed={0}
         onVocabularySetChange={vi.fn()}
         onCustomRowChange={vi.fn()}
         onCustomRowDelete={onCustomRowDelete}
         onCustomRowAdd={onCustomRowAdd}
         onRoundSizeChange={vi.fn()}
+        onCooldownRoundsChange={vi.fn()}
         onClearImportFeedback={vi.fn()}
         onExportCsv={exportCsvMock}
         onImportCsv={vi.fn()}
@@ -185,6 +192,7 @@ describe("HomeScreen", () => {
       recentResults: ["incorrect", "correct", "correct"],
       introducedAt: 80,
       lastIncorrectAt: 100,
+      lastSeenRound: 1,
     };
 
     render(
@@ -201,11 +209,13 @@ describe("HomeScreen", () => {
         }}
         progressByMode={progressByMode}
         settings={settings}
+        roundsPlayed={0}
         onVocabularySetChange={vi.fn()}
         onCustomRowChange={vi.fn()}
         onCustomRowDelete={vi.fn()}
         onCustomRowAdd={vi.fn()}
         onRoundSizeChange={vi.fn()}
+        onCooldownRoundsChange={vi.fn()}
         onClearImportFeedback={vi.fn()}
         onExportCsv={exportCsvMock}
         onImportCsv={vi.fn()}
@@ -242,11 +252,13 @@ describe("HomeScreen", () => {
         progress={{}}
         progressByMode={defaultProgressByMode()}
         settings={settings}
+        roundsPlayed={0}
         onVocabularySetChange={vi.fn()}
         onCustomRowChange={vi.fn()}
         onCustomRowDelete={vi.fn()}
         onCustomRowAdd={vi.fn()}
         onRoundSizeChange={vi.fn()}
+        onCooldownRoundsChange={vi.fn()}
         onClearImportFeedback={vi.fn()}
         onExportCsv={exportCsvMock}
         onImportCsv={vi.fn()}
@@ -299,11 +311,13 @@ describe("HomeScreen", () => {
         progress={{}}
         progressByMode={defaultProgressByMode()}
         settings={settings}
+        roundsPlayed={0}
         onVocabularySetChange={vi.fn()}
         onCustomRowChange={vi.fn()}
         onCustomRowDelete={vi.fn()}
         onCustomRowAdd={vi.fn()}
         onRoundSizeChange={vi.fn()}
+        onCooldownRoundsChange={vi.fn()}
         onClearImportFeedback={vi.fn()}
         onExportCsv={exportCsvMock}
         onImportCsv={onImportCsv}

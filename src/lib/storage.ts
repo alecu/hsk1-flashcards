@@ -21,12 +21,14 @@ export const defaultSettings: UserSettings = {
   colorTones: true,
   vocabularySet: "hsk20",
   customWordList: defaultCustomWordList,
+  cooldownRounds: 3,
 };
 
 export const defaultPersistedState: PersistedState = {
   settings: defaultSettings,
   progress: defaultProgressByMode(),
   recentSessions: [],
+  roundsPlayed: 0,
 };
 
 export function loadState() {
@@ -49,6 +51,8 @@ export function loadState() {
       },
       progress: normalizeProgressByMode(parsed.progress),
       recentSessions: parsed.recentSessions ?? [],
+      roundsPlayed:
+        typeof parsed.roundsPlayed === "number" ? parsed.roundsPlayed : 0,
     };
   } catch {
     return defaultPersistedState;
@@ -67,6 +71,7 @@ export function buildNextProgress(
   current: PersistedState["progress"],
   mode: StudyMode,
   updates: Array<{ cardId: string; result: "correct" | "incorrect" }>,
+  roundNumber: number,
 ) {
   const nextProgress = {
     ...current,
@@ -90,6 +95,7 @@ export function buildNextProgress(
       ),
       introducedAt: previous.introducedAt ?? now,
       lastIncorrectAt: result === "incorrect" ? now : previous.lastIncorrectAt,
+      lastSeenRound: roundNumber,
     };
   });
 

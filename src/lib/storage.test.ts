@@ -19,6 +19,7 @@ describe("storage progress updates", () => {
         recentResults: ["correct", "incorrect"],
         introducedAt: 90,
         lastIncorrectAt: 80,
+        lastSeenRound: 3,
       },
     };
 
@@ -32,6 +33,7 @@ describe("storage progress updates", () => {
       { cardId: "cat", result: "incorrect" },
       { cardId: "dog", result: "correct" },
       ],
+      4,
     );
 
     expect(next.tones.cat.recentResults).toEqual([
@@ -40,8 +42,10 @@ describe("storage progress updates", () => {
       "incorrect",
     ]);
     expect(next.tones.cat.lastIncorrectAt).toBe(1_234);
+    expect(next.tones.cat.lastSeenRound).toBe(4);
     expect(next.tones.dog.introducedAt).toBe(1_234);
     expect(next.tones.dog.recentResults).toEqual(["correct"]);
+    expect(next.tones.dog.lastSeenRound).toBe(4);
 
     vi.restoreAllMocks();
   });

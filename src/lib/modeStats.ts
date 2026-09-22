@@ -52,7 +52,12 @@ function getModeProgress(
     : progressByMode[mode];
 }
 
-function bucketLabel(mode: StudyMode, progress: CardProgress) {
+function bucketLabel(
+  mode: StudyMode,
+  progress: CardProgress,
+  currentRound: number,
+  cooldownRounds: number,
+) {
   if (mode === "review") {
     if (progress.lastResult === "incorrect") {
       return "Error inmediato";
@@ -65,13 +70,15 @@ function bucketLabel(mode: StudyMode, progress: CardProgress) {
     return "Historial con fallos";
   }
 
-  switch (getAdaptiveSelectionBucket(progress)) {
+  switch (getAdaptiveSelectionBucket(progress, currentRound, cooldownRounds)) {
     case "recent-error":
       return "Error inmediato";
     case "unseen":
       return "Nueva";
     case "recovery":
       return "En fijación";
+    case "cooldown":
+      return "En espera";
     case "general":
       return "Repaso general";
     case "mastered":
@@ -125,10 +132,19 @@ export function buildModeStatsRows(
   progressByMode: ProgressByMode,
   mode: StudyMode,
   roundSize: number,
+  currentRound: number,
+  cooldownRounds: number,
 ): CardModeStatsRow[] {
   const progressByCard = getModeProgress(progressByMode, mode);
   const previewIds = new Set(
-    pickRoundCards(cards, roundSize, progressByCard, mode).map((card) => card.id),
+    pickRoundCards(
+      cards,
+      roundSize,
+      progressByCard,
+      mode,
+      currentRound,
+      cooldownRounds,
+    ).map((card) => card.id),
   );
   const now = Date.now();
 
@@ -148,7 +164,7 @@ export function buildModeStatsRows(
         .join(" "),
       spanish: card.spanish,
       mode,
-      bucket: bucketLabel(mode, progress),
+      bucket: bucketLabel(mode, progress, currentRound, cooldownRounds),
       attempts: progress.attempts,
       correct: progress.correct,
       incorrect: progress.incorrect,

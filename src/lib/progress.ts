@@ -22,6 +22,7 @@ export function normalizeCardProgress(
     recentResults: progress?.recentResults?.slice(0, RECENT_RESULTS_LIMIT) ?? [],
     introducedAt: progress?.introducedAt ?? null,
     lastIncorrectAt: progress?.lastIncorrectAt ?? null,
+    lastSeenRound: progress?.lastSeenRound ?? null,
   };
 }
 
@@ -34,6 +35,31 @@ export function isMastered(progress: CardProgress) {
     progress.streak >= MASTERED_STREAK_THRESHOLD &&
     !hasRecentIncorrect(progress)
   );
+}
+
+// A word the learner just got right sits out for a few rounds instead of
+// coming right back -- with a big deck, seeing the same just-answered word
+// again next round is what feels tiring, per user feedback. Only applies to
+// a plain correct answer with no recent miss; a card still being recovered
+// from a recent mistake (hasRecentIncorrect) should keep reappearing.
+export function isCoolingDown(
+  progress: CardProgress,
+  currentRound: number,
+  cooldownRounds: number,
+) {
+  if (cooldownRounds <= 0) {
+    return false;
+  }
+
+  if (progress.lastResult !== "correct" || hasRecentIncorrect(progress)) {
+    return false;
+  }
+
+  if (progress.lastSeenRound === null) {
+    return false;
+  }
+
+  return currentRound - progress.lastSeenRound < cooldownRounds;
 }
 
 export function defaultProgressByMode(): ProgressByMode {
@@ -130,6 +156,7 @@ export function mergeProgressEntries(entries: CardProgress[]): CardProgress {
       return earliest;
     }, null),
     lastIncorrectAt: mostRecentIncorrect?.lastIncorrectAt ?? null,
+    lastSeenRound: mostRecentSeen?.lastSeenRound ?? null,
   };
 }
 

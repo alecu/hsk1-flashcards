@@ -6,6 +6,7 @@ import { SessionScreen } from "./components/SessionScreen";
 import {
   hsk20Cards,
   hsk30Cards,
+  isleNivel1Cards,
   isleNivel2Cards,
   radicalesCards,
   vocabularyDecks,
@@ -93,6 +94,7 @@ export default function App() {
       hsk20: hsk20Cards,
       hsk30: hsk30Cards,
       radicales: radicalesCards,
+      isleNivel1: isleNivel1Cards,
       isleNivel2: isleNivel2Cards,
       custom: customDeck.cards,
     }),
@@ -157,6 +159,7 @@ export default function App() {
   }, []);
 
   const handleStart = (mode: StudyMode) => {
+    const nextRoundNumber = persistedState.roundsPlayed + 1;
     const selectionProgress =
       mode === "review"
         ? aggregateProgress
@@ -166,9 +169,16 @@ export default function App() {
       persistedState.settings.roundSize,
       selectionProgress,
       mode,
+      nextRoundNumber,
+      persistedState.settings.cooldownRounds,
     );
 
-    const session = createSession(roundCards, persistedState.settings.roundSize, mode);
+    const session = createSession(
+      roundCards,
+      persistedState.settings.roundSize,
+      mode,
+      nextRoundNumber,
+    );
 
     if (!session) {
       return;
@@ -182,6 +192,10 @@ export default function App() {
     );
     setSessionUpdates([]);
     setScreenState({ name: "session", session, mode });
+    setPersistedState((current) => ({
+      ...current,
+      roundsPlayed: nextRoundNumber,
+    }));
 
     if (typeof window !== "undefined") {
       const screenName = mode === "tones" ? "tones" : "session";
@@ -316,6 +330,7 @@ export default function App() {
         persistedState.progress,
         screenState.mode,
         nextUpdates,
+        screenState.session.roundNumber,
       );
 
       setPersistedState((current) => ({
@@ -393,6 +408,7 @@ export default function App() {
       progressByMode={persistedState.progress as ProgressByMode}
       importFeedback={importFeedback}
       settings={persistedState.settings}
+      roundsPlayed={persistedState.roundsPlayed}
       onClearImportFeedback={() => setImportFeedback(null)}
       onVocabularySetChange={(value) =>
         handleSettingsChange({
@@ -439,6 +455,12 @@ export default function App() {
       }
       onRoundSizeChange={(value) =>
         handleSettingsChange({ ...persistedState.settings, roundSize: value })
+      }
+      onCooldownRoundsChange={(value) =>
+        handleSettingsChange({
+          ...persistedState.settings,
+          cooldownRounds: value,
+        })
       }
       onToggleSetting={(key) =>
         handleSettingsChange({
